@@ -55,7 +55,7 @@ class mcg128 {
         // Nothing (else) to do.
     }
 
-    void seed ( const rtype s_ ) noexcept {
+    void seed ( const rtype s_ ) {
         state_ = stype { s_ | 1 };
     }
 
@@ -102,7 +102,7 @@ class mcg128_fast {
         // Nothing (else) to do.
     }
 
-    void seed ( const rtype s_ ) noexcept {
+    void seed ( const rtype s_ ) {
         state_ = stype { s_ | 1 };
     }
 
