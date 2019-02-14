@@ -1,7 +1,7 @@
 
 # Sax
 
-Sax, acronymed loosely after Swiss Army Something (x)
+Sax, acronymed loosely after Swiss army something (x)
 
 ## License
 
