@@ -1,4 +1,4 @@
 
 # Sax
 
-Sax, and (loose) acronym, Swiss Army Something (x) 
+Sax, acronymed loosely after Swiss Army Something (x) 
