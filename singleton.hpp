@@ -26,21 +26,20 @@
 #include <utility>
 
 
-template <typename derived>
-class singleton
-{
-public:
-  singleton           ()                       = default;
-  singleton           (const singleton&  that) = delete ;
-  singleton           (      singleton&& temp) = delete ;
-  virtual ~singleton  ()                       = default;
-  singleton& operator=(const singleton&  that) = delete ;
-  singleton& operator=(      singleton&& temp) = delete ;
+template <typename Derived>
+struct singleton {
 
-  template <typename... argument_types>
-  static derived& instance(argument_types&&... arguments)
-  {
-    static derived instance(std::forward<argument_types>(arguments)...);
+  singleton ( ) = default;
+  singleton ( const singleton & ) = delete;
+  singleton ( singleton && ) = delete;
+  virtual ~singleton ( ) = default;
+
+  singleton & operator = ( const singleton & ) = delete;
+  singleton & operator = ( singleton && ) = delete;
+
+  template<typename ... Args>
+  static Derived & instance ( Args && ... args_ ) {
+    static Derived instance ( std::forward<Args> ( args_ ) ... );
     return instance;
   }
 };
