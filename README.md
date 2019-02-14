@@ -3,6 +3,6 @@
 
 Sax, acronymed loosely after Swiss army something (x)
 
-## License
+### License
 
 MIT, unless the license in the individual file states differently.
