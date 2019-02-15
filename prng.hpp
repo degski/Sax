@@ -41,7 +41,7 @@
 #include <singleton.hpp>    // https://github.com/degski/Sax/blob/master/singleton.hpp
 
 
-namespace rnd {
+namespace sax {
 
 #if UINTPTR_MAX == 0xFFFF'FFFF'FFFF'FFFF
 #if defined ( __clang__ ) or defined ( __GNUC__ )
@@ -73,6 +73,6 @@ singleton<Rng> rng;
 auto seed_from_os = [ ] { const auto s = os_seed ( ); rng.instance ( ).seed ( s ); return s; } ( );
 }
 
-auto rng = [ ] { return detail::rng.instance ( ); } ( );
+auto prng = [ ] { return detail::rng.instance ( ); } ( );
 
-} // namespace rnd
+} // namespace sax
