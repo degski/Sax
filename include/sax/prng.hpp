@@ -32,13 +32,13 @@
 
 #if UINTPTR_MAX == 0xFFFF'FFFF'FFFF'FFFF
 #if defined ( __clang__ ) or defined ( __GNUC__ )
-#include <lehmer.hpp>       // https://github.com/degski/Sax/blob/master/lehmer.hpp
+#include "lehmer.hpp"       // https://github.com/degski/Sax/blob/master/lehmer.hpp
 #else
-#include <splitmix.hpp>     // https://github.com/degski/Sax/blob/master/splitmix.hpp
+#include "splitmix.hpp"     // https://github.com/degski/Sax/blob/master/splitmix.hpp
 #endif
 #endif
 
-#include <singleton.hpp>    // https://github.com/degski/Sax/blob/master/singleton.hpp
+#include "singleton.hpp"    // https://github.com/degski/Sax/blob/master/singleton.hpp
 
 
 namespace sax {
