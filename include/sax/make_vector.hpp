@@ -1,3 +1,4 @@
+
 // make_vector.hpp
 //
 // Copyright (c) 2019 Tristan Brindle (tcbrindle at gmail dot com)

@@ -1,3 +1,4 @@
+
 #ifndef LEHMER_HPP_INCLUDED
 #define LEHMER_HPP_INCLUDED 1
 
