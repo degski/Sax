@@ -1,7 +1,7 @@
 
 # Sax
 
-Sax, acronymed loosely after Swiss army something (x)
+Sax, acronymed loosely after Swiss army something (x). This is a collection of small libraries, which can all be used independently. Disclaimer: not all libraries are written by me or might contain bits of code lifted of stackoverflow.com.
 
 
 ## Individual libraries
