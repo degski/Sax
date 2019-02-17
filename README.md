@@ -1,5 +1,5 @@
 
-# Sax
+# Sax (C++17)
 
 Sax, acronymed loosely after *Swiss army x (something)* [could be a knife, a sword, a machete, a gun or a bazooka, i.e. to speak with Bjarne: "it might shoot your leg off"], which is short and distinctive and allows for the namespace `sax`. Sax is a collection of small useful (in my mind) libraries I've either written or collected over time, and can all be used independently. 
 
@@ -10,7 +10,7 @@ All libraries are within the `sax` namespace, also those which were not containe
 
 ## Individual libraries
 
-#### string_split (C++17)
+### string_split
 
 A string splitter allowing for strings to be used as delimiters.
 
@@ -53,9 +53,17 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
     returns a vector of strings "Tom and" and "Jerry".
 
 
-#### uniform_int_distribution_fast (C++17)
+### uniform_int_distribution_fast
 
 C++17-compliant [uniform_int_distribution_fast](https://github.com/degski/uniform_int_distribution_fast), based on bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
+
+
+### stats
+
+Caalculates in one pass [i.e. sort of efficiently] using [Wellford's method](https://www.johndcook.com/blog/standard_deviation/), the minimum, maximum, mean, variance, sample standard deviation and population standard deviation of some data [returns all of those in a std::tuple].
+
+    template<typename T>
+    [[ nodiscard ]] std::tuple<T, T, T, T, T, T> stats ( T * data, std::size_t n ) noexcept;
 
 
 ## License
