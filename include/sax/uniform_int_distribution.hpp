@@ -1,7 +1,7 @@
 
 // MIT License
 //
-// C++17-compliant uniform_int_distribution_fast, based on bounded_rand-function
+// C++17-compliant uniform_int_distribution, based on bounded_rand-function
 // as per the paper by Daniel Lemire:
 // https://arxiv.org/abs/1805.10941.
 // and optimizations added to bounded_rand by Melissa E. O'Neill:
@@ -94,7 +94,7 @@
 namespace sax {
 
 template<typename IntType = int>
-class uniform_int_distribution_fast;
+class uniform_int_distribution;
 
 namespace detail {
 
@@ -206,7 +206,7 @@ struct param_type {
 
     using range_type = typename std::make_unsigned<result_type>::type;
 
-    friend class ::ext::uniform_int_distribution_fast<result_type>;
+    friend class ::ext::uniform_int_distribution<result_type>;
 
     explicit param_type ( result_type min_, result_type max_ ) NOEXCEPT :
         min ( min_ ),
@@ -246,14 +246,14 @@ struct param_type {
 
 
 template<typename IntType>
-class uniform_int_distribution_fast : public detail::param_type<IntType, uniform_int_distribution_fast<IntType>> {
+class uniform_int_distribution : public detail::param_type<IntType, uniform_int_distribution<IntType>> {
 
     static_assert ( detail::is_distribution_result_type<IntType>::value, "only 16-, 32- and 64-bit result_types are allowed." );
 
     public:
 
     using result_type = IntType;
-    using param_type = detail::param_type<result_type, uniform_int_distribution_fast>;
+    using param_type = detail::param_type<result_type, uniform_int_distribution>;
 
     private:
 
@@ -271,13 +271,13 @@ class uniform_int_distribution_fast : public detail::param_type<IntType, uniform
 
     public:
 
-    explicit uniform_int_distribution_fast ( ) NOEXCEPT :
+    explicit uniform_int_distribution ( ) NOEXCEPT :
         param_type ( std::numeric_limits<result_type>::min ( ), std::numeric_limits<result_type>::max ( ) ) { }
-    explicit uniform_int_distribution_fast ( result_type a, result_type b = std::numeric_limits<result_type>::max ( ) ) NOEXCEPT :
+    explicit uniform_int_distribution ( result_type a, result_type b = std::numeric_limits<result_type>::max ( ) ) NOEXCEPT :
         param_type ( a, b ) {
         assert ( b >= a );
     }
-    explicit uniform_int_distribution_fast ( const param_type & params_ ) NOEXCEPT :
+    explicit uniform_int_distribution ( const param_type & params_ ) NOEXCEPT :
         param_type ( params_ ) {
     }
 
