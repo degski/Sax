@@ -55,7 +55,7 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
 
 ### uniform_int_distribution_fast
 
-C++17-compliant drop-in for [`std::uniform_int_distribution`](https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution) named [uniform_int_distribution_fast](https://github.com/degski/uniform_int_distribution_fast), based on bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
+C++17-compliant (much) faster drop-in replacement for [`std::uniform_int_distribution`](https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution) designated [`sax::uniform_int_distribution_fast`](https://github.com/degski/uniform_int_distribution_fast), based on the bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
 
 
 ### statistics
