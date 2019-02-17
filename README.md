@@ -65,6 +65,8 @@ Returns, in one pass through the data [i.e. sort of efficiently] - using [Wellfo
     template<typename T>
     [[ nodiscard ]] std::tuple<T, T, T, T, T, T> statistics ( T const * const data, const std::size_t n ) noexcept;
 
+`statistics` is purposely fitted with a C-interface, as to allow for maximum flexibility.
+
 
 ### shift_rotate_avx2
 
