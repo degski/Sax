@@ -404,7 +404,7 @@ class uniform_int_distribution : public detail::param_type<IntType, uniform_int_
         #endif
     }
 };
-} // namespace ext
+} // namespace sax
 
 
 #if MSVC
