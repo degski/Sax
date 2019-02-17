@@ -19,10 +19,10 @@ A string splitter allowing for strings to be used as delimiters.
 Just pass in a STL-string, followed by a number of delimiters (string-literals). **The order of the passed-in delimiters is important as the delimiters are applied left to right on the (sub-strings) of the previous parsing pass.**
 
 
-    std::string s { "Tom and Jerry" };
+    std::string s { "Cheech and Chong" };
     auto vector = sax::string_split ( s, "and" );
 
-    returns a vector of strings "Tom" and "Jerry".
+    returns a vector of strings "Cheech" and "Chong".
 
     Leading and trailing white-space is trimmed by default.
 
@@ -37,20 +37,20 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
     ",", " " and "\t" as delimiters, which will parse most 
     csv-files out of the box. 
 
-    std::string s { "Tom and, Jerry" };
+    std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, "and" );
 
-    returns a vector of strings "Tom" and ", Jerry".
+    returns a vector of strings "Cheech" and ", Chong".
 
-    std::string s { "Tom and, Jerry" };
+    std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, "and", "," );
 
-    returns a vector of strings "Tom" and "Jerry".
+    returns a vector of strings "Cheech" and "Chong".
     
-    std::string s { "Tom and, Jerry" };
+    std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, " and ", "," );
     
-    returns a vector of strings "Tom and" and "Jerry".
+    returns a vector of strings "Cheech and" and "Chong".
 
 
 ### uniform_int_distribution
