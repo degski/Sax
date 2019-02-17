@@ -53,6 +53,11 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
     returns a vector of strings "Tom and" and "Jerry".
 
 
+#### uniform_int_distribution_fast (C++17)
+
+C++17-compliant [uniform_int_distribution_fast](https://github.com/degski/uniform_int_distribution_fast), based on bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
+
+
 ## License
 
 MIT, unless the license in the individual file states differently. The library contains no (L)GPL'ed code.
