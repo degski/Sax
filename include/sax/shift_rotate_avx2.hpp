@@ -28,7 +28,7 @@
 #ifdef __AVX2__
 
 namespace sax {
-
+namespace detail {
 [[ nodiscard ]] inline __m256i left_shift_000_063 ( __m256i a, int n ) noexcept { // 6
     return _mm256_or_si256 ( _mm256_slli_epi64 ( a, n ), _mm256_blend_epi32 ( _mm256_setzero_si256 ( ), _mm256_permute4x64_epi64 ( _mm256_srli_epi64 ( a, 64 - n ), _MM_SHUFFLE ( 2, 1, 0, 0 ) ), _MM_SHUFFLE ( 3, 3, 3, 0 ) ) );
 [[ nodiscard ]] inline __m256i left_shift_064_127 ( __m256i a, int n ) noexcept { // 7
@@ -52,13 +52,12 @@ namespace sax {
 [[ nodiscard ]] inline __m256i left_shift_192_255 ( __m256i a, int n ) noexcept { // 5
     return _mm256_blend_epi32 ( _mm256_setzero_si256 ( ), _mm256_slli_epi64 ( _mm256_permute4x64_epi64 ( a, _MM_SHUFFLE ( 0, 0, 0, 0 ) ), n ), _MM_SHUFFLE ( 3, 0, 0, 0 ) );
 }
-
-[[ nodiscard ]] inline __m256i _mm256_sli_si256 ( __m256i a, int n ) noexcept {
-    if ( n < 128 ) return n < 64 ? left_shift_000_063 ( a, n ) : left_shift_064_127 ( a, n % 64 );
-    else           return n < 192 ? left_shift_128_191 ( a, n % 64 ) : left_shift_192_255 ( a, n % 64 );
 }
-
-
+[[ nodiscard ]] inline __m256i _mm256_sli_si256 ( __m256i a, int n ) noexcept {
+    if ( n < 128 ) return n <  64 ? detail::left_shift_000_063 ( a, n      ) : detail::left_shift_064_127 ( a, n % 64 );
+    else           return n < 192 ? detail::left_shift_128_191 ( a, n % 64 ) : detail::left_shift_192_255 ( a, n % 64 );
+}
+namespace detail {
 [[ nodiscard ]] inline __m256i right_shift_000_063 ( __m256i a, int n ) noexcept { // 6
     return _mm256_or_si256 ( _mm256_srli_epi64 ( a, n ), _mm256_blend_epi32 ( _mm256_setzero_si256 ( ), _mm256_permute4x64_epi64 ( _mm256_slli_epi64 ( a, 64 - n ), _MM_SHUFFLE ( 0, 3, 2, 1 ) ), _MM_SHUFFLE ( 0, 3, 3, 3 ) ) );
 }
@@ -83,13 +82,12 @@ namespace sax {
 [[ nodiscard ]] inline __m256i right_shift_192_255 ( __m256i a, int n ) noexcept { // 5
     return _mm256_blend_epi32 ( _mm256_setzero_si256 ( ), _mm256_srli_epi64 ( _mm256_permute4x64_epi64 ( a, _MM_SHUFFLE ( 0, 0, 0, 3 ) ), n ), _MM_SHUFFLE ( 0, 0, 0, 3 ) );
 }
-
-[[ nodiscard ]] inline __m256i _mm256_sri_si256 ( __m256i a, int n ) noexcept {
-    if ( n < 128 ) return n < 64 ? right_shift_000_063 ( a, n ) : right_shift_064_127 ( a, n % 64 );
-    else           return n < 192 ? right_shift_128_191 ( a, n % 64 ) : right_shift_192_255 ( a, n % 64 );
 }
-
-
+[[ nodiscard ]] inline __m256i _mm256_sri_si256 ( __m256i a, int n ) noexcept {
+    if ( n < 128 ) return n <  64 ? detail::right_shift_000_063 ( a, n      ) : detail::right_shift_064_127 ( a, n % 64 );
+    else           return n < 192 ? detail::right_shift_128_191 ( a, n % 64 ) : detail::right_shift_192_255 ( a, n % 64 );
+}
+namespace detail {
 [[ nodiscard ]] inline __m256i left_rotate_000_063 ( __m256i a, int n ) noexcept { // 5
     return _mm256_or_si256 ( _mm256_slli_epi64 ( a, n ), _mm256_permute4x64_epi64 ( _mm256_srli_epi64 ( a, 64 - n ), _MM_SHUFFLE ( 2, 1, 0, 3 ) ) );
 }
@@ -110,13 +108,12 @@ namespace sax {
 [[ nodiscard ]] inline __m256i left_rotate_192_255 ( __m256i a, int n ) noexcept { // 5
     return _mm256_or_si256 ( _mm256_srli_epi64 ( a, 64 - n ), _mm256_permute4x64_epi64 ( _mm256_slli_epi64 ( a, n ), _MM_SHUFFLE ( 0, 3, 2, 1 ) ) );
 }
-
-[[ nodiscard ]] inline __m256i _mm256_rli_si256 ( __m256i a, int n ) noexcept {
-    if ( n < 128 ) return n < 64 ? left_rotate_000_063 ( a, n ) : left_rotate_064_127 ( a, n % 64 );
-    else           return n < 192 ? left_rotate_128_191 ( a, n % 64 ) : left_rotate_192_255 ( a, n % 64 );
 }
-
-
+[[ nodiscard ]] inline __m256i _mm256_rli_si256 ( __m256i a, int n ) noexcept {
+    if ( n < 128 ) return n <  64 ? detail::left_rotate_000_063 ( a, n      ) : detail::left_rotate_064_127 ( a, n % 64 );
+    else           return n < 192 ? detail::left_rotate_128_191 ( a, n % 64 ) : detail::left_rotate_192_255 ( a, n % 64 );
+}
+namespace detail {
 [[ nodiscard ]] inline __m256i right_rotate_000_063 ( __m256i a, int n ) noexcept { // 5
     return _mm256_or_si256 ( _mm256_srli_epi64 ( a, n ), _mm256_permute4x64_epi64 ( _mm256_slli_epi64 ( a, 64 - n ), _MM_SHUFFLE ( 0, 3, 2, 1 ) ) );
 }
@@ -137,12 +134,11 @@ namespace sax {
 [[ nodiscard ]] inline __m256i right_rotate_192_255 ( __m256i a, int n ) noexcept { // 5
     return _mm256_or_si256 ( _mm256_slli_epi64 ( a, 64 - n ), _mm256_permute4x64_epi64 ( _mm256_srli_epi64 ( a, n ), _MM_SHUFFLE ( 2, 1, 0, 3 ) ) );
 }
-
-[[ nodiscard ]] inline __m256i _mm256_rri_si256 ( __m256i a, int n ) noexcept {
-    if ( n < 128 ) return n < 64 ? right_rotate_000_063 ( a, n ) : right_rotate_064_127 ( a, n % 64 );
-    else           return n < 192 ? right_rotate_128_191 ( a, n % 64 ) : right_rotate_192_255 ( a, n % 64 );
 }
-
+[[ nodiscard ]] inline __m256i _mm256_rri_si256 ( __m256i a, int n ) noexcept {
+    if ( n < 128 ) return n <  64 ? detail::right_rotate_000_063 ( a, n      ) : detail::right_rotate_064_127 ( a, n % 64 );
+    else           return n < 192 ? detail::right_rotate_128_191 ( a, n % 64 ) : detail::right_rotate_192_255 ( a, n % 64 );
+}
 }
 
 #endif
