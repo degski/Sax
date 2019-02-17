@@ -36,7 +36,7 @@ namespace sax {
 // Wellford's method: https://www.johndcook.com/blog/standard_deviation/
 // returns min, max, mean, variance, sample sd and population sd.
 template<typename T>
-[[ nodiscard ]] std::tuple<T, T, T, T, T, T> stats ( T const * const data, const std::size_t n ) noexcept {
+[[ nodiscard ]] std::tuple<T, T, T, T, T, T> statistics ( T const * const data, const std::size_t n ) noexcept {
     long double min = ( long double ) std::numeric_limits<T>::max ( ), max = ( long double ) std::numeric_limits<T>::min ( );
     long double avg = 0.0, var = 0.0;
     for ( std::size_t i = 0; i < n; i++ ) {

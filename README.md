@@ -58,12 +58,12 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
 C++17-compliant [uniform_int_distribution_fast](https://github.com/degski/uniform_int_distribution_fast), based on bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
 
 
-### stats
+### statistics
 
 Calculates in one pass through the data [i.e. sort of efficiently], using [Wellford's method](https://www.johndcook.com/blog/standard_deviation/), the minimum, maximum, mean, variance, sample standard deviation and population standard deviation of some data [returns all of those, consecutively in a std::tuple].
 
     template<typename T>
-    [[ nodiscard ]] std::tuple<T, T, T, T, T, T> stats ( T const * const data, const std::size_t n ) noexcept;
+    [[ nodiscard ]] std::tuple<T, T, T, T, T, T> statistics ( T const * const data, const std::size_t n ) noexcept;
 
 
 ## License
