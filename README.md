@@ -1,7 +1,7 @@
 
 # Sax
 
-Sax, acronymed loosely after Swiss army something (x), which is short and distinctive and allows for the namespace `sax`. Sax is a collection of small useful (in my mind) libraries I've either written or collected over time, and can all be used independently. 
+Sax, acronymed loosely after Swiss army something (x) [knife, sword, machete, gun, bazooka, i.e. to speak with Bjarne: "it might shoot your leg off"], which is short and distinctive and allows for the namespace `sax`. Sax is a collection of small useful (in my mind) libraries I've either written or collected over time, and can all be used independently. 
 
 **Disclaimer: not all libraries are written by me or might contain bits of code lifted of stackoverflow.com.**
 
