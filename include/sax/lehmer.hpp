@@ -35,6 +35,8 @@
 
 #include <cstdint>
 
+namespace sax {
+
 namespace lehmer_detail {
 
 template <typename rtype, typename stype>
@@ -133,5 +135,7 @@ class mcg128_fast {
 
 using mcg128 = lehmer_detail::mcg128<uint64_t, __uint128_t>;
 using mcg128_fast = lehmer_detail::mcg128_fast<uint64_t, __uint128_t>;
+
+}
 
 #endif // LEHMER_HPP_INCLUDED

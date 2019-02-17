@@ -30,6 +30,7 @@
 #include <limits>
 #include <tuple>
 
+namespace sax {
 
 // Wellford's method: https://www.johndcook.com/blog/standard_deviation/
 // returns min, mix, mean, variance, sample sd and population sd.
@@ -46,4 +47,6 @@ std::tuple<T, T, T, T, T, T> stats ( T * data, std::size_t n ) noexcept {
         var += t * ( d - avg );
     }
     return { min, max, ( T ) avg, ( T ) var, ( T ) std::sqrt ( var / ( n - 1 ) ), ( T ) std::sqrt ( var / n ) };
+}
+
 }

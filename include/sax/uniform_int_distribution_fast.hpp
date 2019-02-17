@@ -91,7 +91,7 @@
 #define USE_ABSEIL ( HAVE_ABSEIL and M32 )
 
 
-namespace ext {
+namespace sax {
 
 template<typename IntType = int>
 class uniform_int_distribution_fast;

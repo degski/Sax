@@ -40,15 +40,17 @@
 
 #include <cstdint>
 
+
+namespace sax {
+
 namespace splitmix_detail {
 
 template <typename IntRep>
-IntRep fast_exp(IntRep x, IntRep power)
-{
-    IntRep result = IntRep(1);
+IntRep fast_exp ( IntRep x, IntRep power ) {
+    IntRep result = IntRep ( 1 );
     IntRep multiplier = x;
-    while (power != IntRep(0)) {
-        IntRep thismult = power & IntRep(1) ? multiplier : IntRep(1);
+    while ( power != IntRep ( 0 ) ) {
+        IntRep thismult = power & IntRep ( 1 ) ? multiplier : IntRep ( 1 );
         result *= thismult;
         power >>= 1;
         multiplier *= multiplier;
@@ -57,9 +59,8 @@ IntRep fast_exp(IntRep x, IntRep power)
 }
 
 template <typename IntRep>
-inline IntRep modular_inverse(IntRep x)
-{
-    return fast_exp(x, IntRep(-1));
+inline IntRep modular_inverse ( IntRep x ) {
+    return fast_exp ( x, IntRep ( -1 ) );
 }
 
 #ifndef __GNUC__
@@ -68,11 +69,11 @@ inline IntRep modular_inverse(IntRep x)
 // use a popcount intrinsic if you can since most modern CPUs have one.
 
 template <typename IntRep>
-inline unsigned int pop_count(IntRep x) {
+inline unsigned int pop_count ( IntRep x ) {
     unsigned int count = 0;
-    while (x) {
+    while ( x ) {
         ++count;
-        x &= x - IntRep(1);
+        x &= x - IntRep ( 1 );
     }
     return count;
 }
@@ -80,146 +81,147 @@ inline unsigned int pop_count(IntRep x) {
 #else
 
 template <typename IntRep>
-inline IntRep pop_count(IntRep x) {
-    if (sizeof(int) <= sizeof(IntRep))
-        return __builtin_popcount(x);
-    else if (sizeof(long) <= sizeof(IntRep))
-        return __builtin_popcountl(x);
+inline IntRep pop_count ( IntRep x ) {
+    if ( sizeof ( int ) <= sizeof ( IntRep ) )
+        return __builtin_popcount ( x );
+    else if ( sizeof ( long ) <= sizeof ( IntRep ) )
+        return __builtin_popcountl ( x );
     else
-        return __builtin_popcountll(x);
+        return __builtin_popcountll ( x );
 }
 #endif
 
 
 template <uint64_t m1, uint64_t m2,
-          unsigned int p, unsigned int q, unsigned int r,
-          uint64_t m3, uint64_t m4,
-          unsigned int s, unsigned int t, unsigned int u>
-class splitmix64_base {
-public:
-    using result_type = uint64_t;
-    static constexpr result_type min() { return 0; };
-    static constexpr result_type max() { return ~result_type(0); };
+    unsigned int p, unsigned int q, unsigned int r,
+    uint64_t m3, uint64_t m4,
+    unsigned int s, unsigned int t, unsigned int u>
+    class splitmix64_base {
+        public:
+        using result_type = uint64_t;
+        static constexpr result_type min ( ) { return 0; };
+        static constexpr result_type max ( ) { return ~result_type ( 0 ); };
 
-protected:
+        protected:
 
-    uint64_t seed_;
-    uint64_t gamma_;
+        uint64_t seed_;
+        uint64_t gamma_;
 
-    static uint64_t mix_gamma(uint64_t x) {
-        x ^= x >> p;
-        x *= m1;
-        x ^= x >> q;
-        x *= m2;
-        x ^= x >> r;
-        x |= 1ul;
-        int n = pop_count(x ^ (x >> 1));
-        return (n < 24) ? x ^ 0xaaaaaaaaaaaaaaaa : x;
-    }
-
-    static inline constexpr result_type mix64(uint64_t x) { // degski: changed return type to result_type.
-        x ^= x >> s;
-        x *= m3;
-        x ^= x >> t;
-        x *= m4;
-        x ^= x >> u;
-        return x;
-    }
-
-    void advance() {
-        seed_ += gamma_;
-    }
-
-    uint64_t next_seed() {
-        uint64_t result = seed_;
-        advance();
-        return result;
-    }
-
-public:
-    splitmix64_base(uint64_t seed  = 0xbad0ff1ced15ea5e,
-                    uint64_t gamma = 0x9e3779b97f4a7c15)
-        : seed_(seed), gamma_(gamma | 1)
-    {
-        // Nothing (else) to do.
-    }
-
-    result_type operator()() { // degski: changed return type to result_type.
-        return mix64(next_seed());
-    }
-
-    template<typename It>
-    void generate (It it, const It end) { // degski: added this function.
-        while (it != end) {
-            *it++ = mix64(next_seed());
+        static uint64_t mix_gamma ( uint64_t x ) {
+            x ^= x >> p;
+            x *= m1;
+            x ^= x >> q;
+            x *= m2;
+            x ^= x >> r;
+            x |= 1ul;
+            int n = pop_count ( x ^ ( x >> 1 ) );
+            return ( n < 24 ) ? x ^ 0xaaaaaaaaaaaaaaaa : x;
         }
-    }
 
-    void seed ( const result_type s_ ) noexcept { // degski: added this function.
-        seed_ = s_;
-    }
+        static inline constexpr result_type mix64 ( uint64_t x ) { // degski: changed return type to result_type.
+            x ^= x >> s;
+            x *= m3;
+            x ^= x >> t;
+            x *= m4;
+            x ^= x >> u;
+            return x;
+        }
 
-    void advance(uint64_t delta) {
-        seed_ += delta * gamma_;
-    }
+        void advance ( ) {
+            seed_ += gamma_;
+        }
 
-    void backstep(uint64_t delta) {
-        advance(-delta);
-    }
+        uint64_t next_seed ( ) {
+            uint64_t result = seed_;
+            advance ( );
+            return result;
+        }
 
-    bool wrapped() {
-        return seed_ == 0;
-    }
+        public:
+        splitmix64_base ( uint64_t seed = 0xbad0ff1ced15ea5e,
+            uint64_t gamma = 0x9e3779b97f4a7c15 )
+            : seed_ ( seed ), gamma_ ( gamma | 1 ) {
+            // Nothing (else) to do.
+        }
 
-    uint64_t operator-(const splitmix64_base& other) {
-        return (seed_ - other.seed_) * modular_inverse(other.gamma_);
-    }
+        result_type operator()( ) { // degski: changed return type to result_type.
+            return mix64 ( next_seed ( ) );
+        }
 
-    splitmix64_base split() {
-        uint64_t new_seed  = operator()();
-        uint64_t new_gamma = mix_gamma(next_seed());
-        return { new_seed, new_gamma };
-    }
+        template<typename It>
+        void generate ( It it, const It end ) { // degski: added this function.
+            while ( it != end ) {
+                *it++ = mix64 ( next_seed ( ) );
+            }
+        }
 
-    bool operator==(const splitmix64_base& rhs) {
-        return (seed_ == rhs.seed_) && (gamma_ == rhs.gamma_);
-    }
+        void seed ( const result_type s_ ) noexcept { // degski: added this function.
+            seed_ = s_;
+        }
+
+        void advance ( uint64_t delta ) {
+            seed_ += delta * gamma_;
+        }
+
+        void backstep ( uint64_t delta ) {
+            advance ( -delta );
+        }
+
+        bool wrapped ( ) {
+            return seed_ == 0;
+        }
+
+        uint64_t operator-( const splitmix64_base& other ) {
+            return ( seed_ - other.seed_ ) * modular_inverse ( other.gamma_ );
+        }
+
+        splitmix64_base split ( ) {
+            uint64_t new_seed = operator()( );
+            uint64_t new_gamma = mix_gamma ( next_seed ( ) );
+            return { new_seed, new_gamma };
+        }
+
+        bool operator==( const splitmix64_base& rhs ) {
+            return ( seed_ == rhs.seed_ ) && ( gamma_ == rhs.gamma_ );
+        }
 };
 
 template <uint64_t m5, uint64_t m6, unsigned int v, unsigned int w,
-          typename splitmix>
-class splitmix32_base : public splitmix {
-public:
-    using result_type = uint32_t;
-    static constexpr result_type min() { return 0; };
-    static constexpr result_type max() { return ~result_type(0); };
+    typename splitmix>
+    class splitmix32_base : public splitmix {
+        public:
+        using result_type = uint32_t;
+        static constexpr result_type min ( ) { return 0; };
+        static constexpr result_type max ( ) { return ~result_type ( 0 ); };
 
-    using splitmix::splitmix;
+        using splitmix::splitmix;
 
-    result_type operator()() {
-        uint64_t seed = splitmix::next_seed();
-        seed ^= seed >> v;
-        seed *= m5;
-        seed ^= seed >> w;
-        seed *= m6;
-        return result_type(seed >> 32);
-    }
+        result_type operator()( ) {
+            uint64_t seed = splitmix::next_seed ( );
+            seed ^= seed >> v;
+            seed *= m5;
+            seed ^= seed >> w;
+            seed *= m6;
+            return result_type ( seed >> 32 );
+        }
 
-    splitmix32_base split() {
-        return splitmix::split();
-    }
+        splitmix32_base split ( ) {
+            return splitmix::split ( );
+        }
 };
 
 }
 
 using splitmix64 = splitmix_detail::splitmix64_base<
-                       0xff51afd7ed558ccdul, 0xc4ceb9fe1a85ec53ul,
-                       33, 33, 33,
-                       0xbf58476d1ce4e5b9ul, 0x94d049bb133111ebul,
-                       30, 27, 31>;
+    0xff51afd7ed558ccdul, 0xc4ceb9fe1a85ec53ul,
+    33, 33, 33,
+    0xbf58476d1ce4e5b9ul, 0x94d049bb133111ebul,
+    30, 27, 31>;
 
 using splitmix32 = splitmix_detail::splitmix32_base<
-                       0x62a9d9ed799705f5ul, 0xcb24d0a5c88c35b3ul,
-                       33, 28, splitmix64>;
+    0x62a9d9ed799705f5ul, 0xcb24d0a5c88c35b3ul,
+    33, 28, splitmix64>;
+
+}
 
 #endif // SPLITMIX_HPP_INCLUDED

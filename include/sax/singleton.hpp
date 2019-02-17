@@ -26,20 +26,24 @@
 #include <utility>
 
 
+namespace sax {
+
 template <typename Derived>
 struct singleton {
 
-  singleton ( ) = default;
-  singleton ( const singleton & ) = delete;
-  singleton ( singleton && ) = delete;
-  virtual ~singleton ( ) = default;
+    singleton ( ) = default;
+    singleton ( const singleton & ) = delete;
+    singleton ( singleton && ) = delete;
+    virtual ~singleton ( ) = default;
 
-  singleton & operator = ( const singleton & ) = delete;
-  singleton & operator = ( singleton && ) = delete;
+    singleton & operator = ( const singleton & ) = delete;
+    singleton & operator = ( singleton && ) = delete;
 
-  template<typename ... Args>
-  static Derived & instance ( Args && ... args_ ) {
-    static Derived instance ( std::forward<Args> ( args_ ) ... );
-    return instance;
-  }
+    template<typename ... Args>
+    static Derived & instance ( Args && ... args_ ) {
+        static Derived instance ( std::forward<Args> ( args_ ) ... );
+        return instance;
+    }
 };
+
+}

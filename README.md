@@ -1,9 +1,11 @@
 
 # Sax
 
-Sax, acronymed loosely after Swiss army something (x). This is a collection of small libraries, which can all be used independently.
+Sax, acronymed loosely after Swiss army something (x) and allows for the namespace `sax`, which is short and distinctive. Sax is a collection of small useful libraries I've written and/or collected over time, which can all be used independently. 
 
-Disclaimer: not all libraries are written by me or might contain bits of code lifted of stackoverflow.com.
+**Disclaimer: not all libraries are written by me or might contain bits of code lifted of stackoverflow.com.**
+
+All libraries are within the `sax` namespace, also those which were not contained in a namespace initially, like Howard Hinnant's `short_alloc`, hence `sax::short_alloc`, with the exception of the convenience header `iostream.hpp`, which allows for some short-cuts in conjunction with `std::cout` and friends.
 
 
 ## Individual libraries
@@ -53,4 +55,4 @@ Pass in a STL-string, followed by the delimiters. The order of the passed in del
 
 ## License
 
-MIT, unless the license in the individual file states differently.
+MIT, unless the license in the individual file states differently. The library contains no(L)GPL'ed code.

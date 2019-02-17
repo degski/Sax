@@ -41,7 +41,7 @@
 #include <string>
 
 
-namespace at {
+namespace sax {
 
 enum timer_precision : std::size_t { years, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, picoseconds };
 static const std::string precision_desc [ 9 ] { " years.\n", " days.\n", " hours.\n", " minutes.\n", " seconds.\n", " milliseconds.\n", " microseconds.\n", " nanoseconds.\n", " picoseconds.\n" };
