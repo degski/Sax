@@ -27,6 +27,7 @@
 #include <cstddef>
 #include <cassert>
 
+
 namespace sax {
 
 template <std::size_t N, std::size_t alignment = alignof( std::max_align_t )>
