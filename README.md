@@ -66,6 +66,16 @@ Returns, in one pass through the data [i.e. sort of efficiently] - using [Wellfo
     [[ nodiscard ]] std::tuple<T, T, T, T, T, T> statistics ( T const * const data, const std::size_t n ) noexcept;
 
 
+### shift_rotate_avx2
+
+Implementation of lane-crossing rotates and shifts in AVX2.
+
+    [[ nodiscard ]] inline __m256i _mm256_sli_si256 ( __m256i a, int n ) noexcept;
+    [[ nodiscard ]] inline __m256i _mm256_sri_si256 ( __m256i a, int n ) noexcept;
+    [[ nodiscard ]] inline __m256i _mm256_rli_si256 ( __m256i a, int n ) noexcept;
+    [[ nodiscard ]] inline __m256i _mm256_rri_si256 ( __m256i a, int n ) noexcept;
+
+
 ## License
 
 MIT, unless the license in the individual file states differently. The library contains no (L)GPL'ed code.
