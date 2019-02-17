@@ -34,7 +34,7 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
     To deal with tabs, pass in a "\t" as a delimiter.
 
     Lines in a csv-file are easily parsed with the combo of 
-    `\",", " ", "\t\"` as delimiters, which will parse most 
+    ",", " " and "\t" as delimiters, which will parse most 
     csv-files out of the box. 
 
     std::string s { "Tom and, Jerry" };
