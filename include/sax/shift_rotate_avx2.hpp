@@ -141,4 +141,4 @@ namespace detail {
 }
 }
 
-#endif
+#endif // ifdef __AVX2__
