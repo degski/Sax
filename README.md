@@ -1,20 +1,20 @@
 
 # Sax
 
-Sax, acronymed loosely after Swiss army something (x) and allows for the namespace `sax`, which is short and distinctive. Sax is a collection of small useful libraries I've written and/or collected over time, which can all be used independently. 
+Sax, acronymed loosely after Swiss army something (x), which is short and distinctive and allows for the namespace `sax`. Sax is a collection of small useful (in my mind) libraries I've either written or collected over time, and can all be used independently. 
 
 **Disclaimer: not all libraries are written by me or might contain bits of code lifted of stackoverflow.com.**
 
-All libraries are within the `sax` namespace, also those which were not contained in a namespace initially, like Howard Hinnant's `short_alloc`, hence `sax::short_alloc`, with the exception of the convenience header `iostream.hpp`, which allows for some short-cuts in conjunction with `std::cout` and friends.
+All libraries are within the `sax` namespace, also those which were not contained in a namespace initially. An example of the latter is Howard Hinnant's `short_alloc`, hence `sax::short_alloc`. The convenience header `iostream.hpp` is an exception to this rule. `iostream.hpp` allows for some type-safe short-cuts in conjunction with `std::cout` or `std::wcout` and friends and pulls in `<iostream>`.
 
 
 ## Individual libraries
 
 #### string_split (C++17)
 
-A string splitter allowing for strings as delimiters.
+A string splitter allowing for strings to be used as delimiters.
 
-Pass in a STL-string, followed by the delimiters. The order of the passed in delimiters is important as the delimiters are applied left to right on the (sub-strings) of the previous parsing pass.
+Just pass in a STL-string, followed by a number of delimiters (string-literals). **The order of the passed-in delimiters is important as the delimiters are applied left to right on the (sub-strings) of the previous parsing pass.**
 
 
     std::string s { "Tom and Jerry" };
@@ -55,4 +55,4 @@ Pass in a STL-string, followed by the delimiters. The order of the passed in del
 
 ## License
 
-MIT, unless the license in the individual file states differently. The library contains no(L)GPL'ed code.
+MIT, unless the license in the individual file states differently. The library contains no (L)GPL'ed code.
