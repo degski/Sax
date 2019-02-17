@@ -5,6 +5,8 @@ Sax, acronymed loosely after *Swiss army x (something)* [could be a knife, a swo
 
 All libraries are within the `sax` namespace, also those which were not contained in a namespace initially. An example of the latter is Howard Hinnant's `short_alloc`, hence `sax::short_alloc`, but otherwise vanilla. The convenience header `iostream.hpp` is an exception to this rule. `iostream.hpp` allows for some type-safe short-cuts in conjunction with `std::cout` or `std::wcout` and friends and pulls in `<iostream>`.
 
+No dependencies other than your local STL.
+
 **Important disclaimer: not all libraries are written by me and/or might contain bits of code lifted of stackoverflow.com, reddit.com/r/cpp, github.com and maybe other places.**
 
 
