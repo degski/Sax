@@ -12,6 +12,54 @@ No dependencies other than your local STL.
 
 ## Individual libraries
 
+### shift_rotate_avx2.hpp
+
+Implementation of lane-crossing rotates and shifts in AVX2.
+
+    [[ nodiscard ]] inline __m256i _mm256_sli_si256 ( __m256i a, int n ) noexcept;
+    [[ nodiscard ]] inline __m256i _mm256_sri_si256 ( __m256i a, int n ) noexcept;
+    [[ nodiscard ]] inline __m256i _mm256_rli_si256 ( __m256i a, int n ) noexcept;
+    [[ nodiscard ]] inline __m256i _mm256_rri_si256 ( __m256i a, int n ) noexcept;
+
+
+### statistics.hpp
+
+Returns, in one pass through the data [i.e. sort of efficiently] - using [Wellford's method](https://www.johndcook.com/blog/standard_deviation/), the minimum, maximum, mean, variance, sample standard deviation and population standard deviation of the data in a std::tuple.
+
+    template<typename T>
+    [[ nodiscard ]] std::tuple<T, T, T, T, T, T> statistics ( T const * const data, const std::size_t n ) noexcept;
+
+`statistics` is purposely fitted with a C-interface, as to allow for maximum flexibility.
+
+
+### stl.hpp
+
+For use with a std::variant (or drop-in) and std::visit using lambda's as
+per the [example #4](https://en.cppreference.com/w/cpp/utility/variant/visit)
+
+    template<typename ... Ts>
+    struct overloaded;
+
+
+A back_emplacer, like std::back_inserter, but emplacing.
+
+    template<typename Container>
+    [[ nodiscard ]] back_emplace_iterator<Container> back_emplacer ( Container & c );
+
+
+Free function calculating the median of a container.
+
+    template<typename Container, typename T = typename Container::value_type, typename Comp = std::less<T>>
+    [[ nodiscard ]] T median ( const Container & container_, Comp comp_ = std::less<T> ( ) );
+
+
+A pair<> that is is_trivially_copyable and therefor faster than std::pair<>.
+This was discussed on [reddit](https://www.reddit.com/r/cpp/comments/ar4ghs/stdpair_disappointing_performance/).
+
+    template<typename KeyType, typename ValueType>
+    struct pair;
+
+
 ### string_split.hpp
 
 A string splitter allowing for strings to be used as delimiters.
@@ -56,55 +104,6 @@ returns a vector of strings "Cheech and" and "Chong".
 ### uniform_int_distribution.hpp
 
 C++17-compliant (much) faster drop-in replacement for [`std::uniform_int_distribution`](https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution), i.e. [`sax::uniform_int_distribution`](https://github.com/degski/uniform_int_distribution_fast), based on the bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
-
-
-### statistics.hpp
-
-Returns, in one pass through the data [i.e. sort of efficiently] - using [Wellford's method](https://www.johndcook.com/blog/standard_deviation/), the minimum, maximum, mean, variance, sample standard deviation and population standard deviation of the data in a std::tuple.
-
-    template<typename T>
-    [[ nodiscard ]] std::tuple<T, T, T, T, T, T> statistics ( T const * const data, const std::size_t n ) noexcept;
-
-`statistics` is purposely fitted with a C-interface, as to allow for maximum flexibility.
-
-
-### shift_rotate_avx2.hpp
-
-Implementation of lane-crossing rotates and shifts in AVX2.
-
-    [[ nodiscard ]] inline __m256i _mm256_sli_si256 ( __m256i a, int n ) noexcept;
-    [[ nodiscard ]] inline __m256i _mm256_sri_si256 ( __m256i a, int n ) noexcept;
-    [[ nodiscard ]] inline __m256i _mm256_rli_si256 ( __m256i a, int n ) noexcept;
-    [[ nodiscard ]] inline __m256i _mm256_rri_si256 ( __m256i a, int n ) noexcept;
-
-
-### stl.hpp
-
-For use with a std::variant (or drop-in) and std::visit using lambda's as
-per the [example #4](https://en.cppreference.com/w/cpp/utility/variant/visit)
-
-    template<typename ... Ts>
-    struct overloaded;
-
-
-A back_emplacer, like std::back_inserter, but emplacing.
-
-    template<typename Container>
-    [[ nodiscard ]] back_emplace_iterator<Container> back_emplacer ( Container & c );
-
-
-Free function calculating the median of a container.
-
-    template<typename Container, typename T = typename Container::value_type, typename Comp = std::less<T>>
-    [[ nodiscard ]] T median ( const Container & container_, Comp comp_ = std::less<T> ( ) );
-
-
-
-A pair<> that is is_trivially_copyable and therefor faster than std::pair<>.
-This was discussed on [reddit](https://www.reddit.com/r/cpp/comments/ar4ghs/stdpair_disappointing_performance/).
-
-    template<typename KeyType, typename ValueType>
-    struct pair;
 
 
 ## License
