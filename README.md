@@ -7,7 +7,7 @@ All libraries are within the `sax` namespace, also those which were not containe
 
 No dependencies other than your local STL.
 
-**Important disclaimer: not all libraries are written by me and/or might contain bits of code lifted of stackoverflow.com, reddit.com/r/cpp, github.com and maybe other places.**
+**Disclaimer: not all libraries are written by me and/or might contain bits of code lifted of stackoverflow.com, reddit.com/r/cpp, github.com and maybe other places.**
 
 
 ## Individual libraries
@@ -22,35 +22,35 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
     std::string s { "Cheech and Chong" };
     auto vector = sax::string_split ( s, "and" );
 
-    returns a vector of strings "Cheech" and "Chong".
+returns a vector of strings "Cheech" and "Chong".
 
     Leading and trailing white-space is trimmed by default.
 
     std::string s { " a,      bc d and e " };
     auto vector = sax::string_split ( s, "and", ",", " " );
 
-    returns a vector of strings "a", "bc", "d" and "e".
+returns a vector of strings "a", "bc", "d" and "e".
 
-    To deal with tabs, pass in a "\t" as a delimiter.
+To deal with tabs, pass in a "\t" as a delimiter.
 
-    Lines in a csv-file are easily parsed with the combo of 
-    ",", " " and "\t" as delimiters, which will parse most 
-    csv-files out of the box. 
+Lines in a csv-file are easily parsed with the combo of 
+`",", " ", "\t"` as delimiters, which will parse most 
+csv-files out of the box. 
 
     std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, "and" );
 
-    returns a vector of strings "Cheech" and ", Chong".
+returns a vector of strings "Cheech" and ", Chong".
 
     std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, "and", "," );
 
-    returns a vector of strings "Cheech" and "Chong".
+returns a vector of strings "Cheech" and "Chong".
     
     std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, " and ", "," );
     
-    returns a vector of strings "Cheech and" and "Chong".
+returns a vector of strings "Cheech and" and "Chong".
 
 
 ### uniform_int_distribution.hpp
@@ -80,26 +80,27 @@ Implementation of lane-crossing rotates and shifts in AVX2.
 
 ### stl.hpp
 
-    For use with a std::variant (or drop-in) and std::visit using lambda's as
-    per the [example #4](https://en.cppreference.com/w/cpp/utility/variant/visit)
+For use with a std::variant (or drop-in) and std::visit using lambda's as
+per the [example #4](https://en.cppreference.com/w/cpp/utility/variant/visit)
+
     template<typename ... Ts>
     struct overloaded;
 
 
-    A back_emplacer, like std::back_inserter, but emplacing.
+A back_emplacer, like std::back_inserter, but emplacing.
 
     template<typename Container>
     [[ nodiscard ]] back_emplace_iterator<Container> back_emplacer ( Container & c );
 
 
-    Free function calculating the median of a container.
+Free function calculating the median of a container.
 
     template<typename Container, typename T = typename Container::value_type, typename Comp = std::less<T>>
     [[ nodiscard ]] T median ( const Container & container_ );
 
 
-    A pair<> that is is_trivially_copyable and therefor faster than std::pair<>.
-    This was discussed on [reddit](https://www.reddit.com/r/cpp/comments/ar4ghs/stdpair_disappointing_performance/).
+A pair<> that is is_trivially_copyable and therefor faster than std::pair<>.
+This was discussed on [reddit](https://www.reddit.com/r/cpp/comments/ar4ghs/stdpair_disappointing_performance/).
 
     template<typename KeyType, typename ValueType>
     struct pair;
