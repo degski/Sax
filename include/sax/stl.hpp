@@ -81,10 +81,10 @@ template<typename Container>
 
 
 template<typename Container, typename T = typename Container::value_type, typename Comp = std::less<T>>
-[[ nodiscard ]] T median ( const Container & container_ ) {
+[[ nodiscard ]] T median ( const Container & container_, Comp comp_ = std::less<T> ( ) ) {
     Container copy { container_ };
     auto median = std::next ( std::begin ( copy ), copy.size ( ) / 2 );
-    std::nth_element ( std::begin ( copy ), median, std::end ( copy ), Comp ( ) );
+    std::nth_element ( std::begin ( copy ), median, std::end ( copy ), comp_ );
     return *median;
 }
 

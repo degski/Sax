@@ -96,7 +96,8 @@ A back_emplacer, like std::back_inserter, but emplacing.
 Free function calculating the median of a container.
 
     template<typename Container, typename T = typename Container::value_type, typename Comp = std::less<T>>
-    [[ nodiscard ]] T median ( const Container & container_ );
+    [[ nodiscard ]] T median ( const Container & container_, Comp comp_ = std::less<T> ( ) );
+
 
 
 A pair<> that is is_trivially_copyable and therefor faster than std::pair<>.
