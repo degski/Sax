@@ -46,4 +46,23 @@ struct singleton {
     }
 };
 
+
+template <typename Derived>
+struct thread_singleton {
+
+    thread_singleton ( ) = default;
+    thread_singleton ( const thread_singleton & ) = delete;
+    thread_singleton ( thread_singleton && ) = delete;
+    virtual ~thread_singleton ( ) = default;
+
+    thread_singleton & operator = ( const thread_singleton & ) = delete;
+    thread_singleton & operator = ( thread_singleton && ) = delete;
+
+    template<typename ... Args>
+    static Derived & instance ( Args && ... args_ ) {
+        static thread_local Derived instance ( std::forward<Args> ( args_ ) ... );
+        return instance;
+    }
+};
+
 }
