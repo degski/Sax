@@ -32,6 +32,7 @@
 #include <type_traits>
 #include <utility>
 
+#include <iostream>
 
 // STL-like-type functions and classes.
 
@@ -63,9 +64,12 @@ class back_emplace_iterator : public std::iterator<std::output_iterator_tag, voi
 
     explicit back_emplace_iterator ( Container & x ) noexcept : m_container ( & x ) { }
 
-    [[ maybe_unused ]] back_emplace_iterator & operator = ( value_type && t ) {
-        m_container->emplace_back ( std::forward<value_type> ( t ) );
-        return * this;
+    template<typename ... Args>
+    [[ nodiscard ]] back_emplace_iterator & operator = ( Args && ... args ) {
+        static_assert ( std::is_constructible_v<typename Container::value_type, Args ... >, "should be constructible" );
+        assert ( m_container );
+        m_container->emplace_back ( std::forward<Args> ( args ) ... );
+        return *this;
     }
 
     [[ maybe_unused ]] back_emplace_iterator & operator * ( ) { return * this; }

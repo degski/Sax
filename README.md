@@ -72,7 +72,7 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals).
 
 returns a vector of strings "Cheech" and "Chong".
 
-    Leading and trailing white-space is trimmed by default.
+Leading and trailing white-space is trimmed by default.
 
     std::string s { " a,      bc d and e " };
     auto vector = sax::string_split ( s, "and", ",", " " );
