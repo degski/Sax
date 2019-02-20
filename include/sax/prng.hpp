@@ -32,23 +32,22 @@
 
 #if UINTPTR_MAX == 0xFFFF'FFFF'FFFF'FFFF
 #if defined ( __clang__ ) or defined ( __GNUC__ )
-#include "lehmer.hpp"       // https://github.com/degski/Sax/blob/master/lehmer.hpp
+#include "lehmer.hpp"
 #else
-#include "splitmix.hpp"     // https://github.com/degski/Sax/blob/master/splitmix.hpp
+#include "splitmix.hpp"
 #endif
 #endif
-
-#include "singleton.hpp"    // https://github.com/degski/Sax/blob/master/singleton.hpp
 
 
 namespace sax {
 
 #if UINTPTR_MAX == 0xFFFF'FFFF'FFFF'FFFF
 #if defined ( __clang__ ) or defined ( __GNUC__ )
+using uint128_t = __uint128_t;
 using Rng = mcg128_fast;
-[[ nodiscard ]] inline __uint128_t os_seed ( ) noexcept {
+[[ nodiscard ]] inline sax::uint128_t os_seed ( ) noexcept {
     std::random_device rd;
-    auto rnd = [ & rd ] ( const int shift ) { return static_cast<__uint128_t> ( rd ( ) ) << shift; };
+    auto rnd = [ & rd ] ( const int shift ) { return static_cast<sax::uint128_t> ( rd ( ) ) << shift; };
     return rnd ( 96 ) | rnd ( 64 ) | rnd ( 32 ) | rnd ( 0 );
 }
 #else
@@ -67,12 +66,5 @@ using Rng = std::minstd_rand;
 #else
 #error funny pointers detected
 #endif
-
-namespace detail {
-singleton<Rng> rng;
-auto seed_from_os = [ ] { const auto s = os_seed ( ); rng.instance ( ).seed ( s ); return s; } ( );
-}
-
-auto prng = [ ] { return detail::rng.instance ( ); } ( );
 
 } // namespace sax
