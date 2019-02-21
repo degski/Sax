@@ -206,7 +206,7 @@ struct param_type {
 
     using range_type = typename std::make_unsigned<result_type>::type;
 
-    friend class ::ext::uniform_int_distribution<result_type>;
+    friend class ::sax::uniform_int_distribution<result_type>;
 
     explicit param_type ( result_type min_, result_type max_ ) NOEXCEPT :
         min ( min_ ),
