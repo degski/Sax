@@ -51,8 +51,9 @@ using Rng = mcg128_fast;
     return rnd ( 96 ) | rnd ( 64 ) | rnd ( 32 ) | rnd ( 0 );
 }
 // Returns first prime less than 2 ^ 128.
-[[ nodiscard ]] inline sax::uint128_t fixed_seed ( ) noexcept {
-    return 340'282'366'920'938'463'463'374'607'431'768'211'297;
+[[ nodiscard ]] inline constexpr sax::uint128_t fixed_seed ( ) noexcept {
+    auto seed = [ ] ( const int shift ) { return static_cast<sax::uint128_t> ( 0xFFFF'FFFF'FFFF'FFFF ) << shift; };
+    return ( seed ( 64 ) | seed ( 0 ) ) - static_cast<sax::uint128_t> ( 158 );
 }
 #else
 using Rng = splitmix64;
@@ -62,7 +63,7 @@ using Rng = splitmix64;
     return rnd ( 32 ) | rnd ( 0 );
 }
 // Returns first prime less than 2 ^ 64.
-[[ nodiscard ]] inline std::uint64_t fixed_seed ( ) noexcept {
+[[ nodiscard ]] inline constexpr std::uint64_t fixed_seed ( ) noexcept {
     return 18'446'744'073'709'551'557;
 }
 #endif
@@ -72,7 +73,7 @@ using Rng = std::minstd_rand;
     return std::random_device { } ( );
 }
 // Returns first prime less than 2 ^ 32.
-[[ nodiscard ]] inline std::uint32_t fixed_seed ( ) noexcept {
+[[ nodiscard ]] inline constexpr std::uint32_t fixed_seed ( ) noexcept {
     return 4'294'967'291;
 }
 #else
