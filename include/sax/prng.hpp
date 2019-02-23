@@ -27,8 +27,6 @@
 #include <cstdint>
 #include <cstdlib>
 
-#include <random>
-
 
 #if UINTPTR_MAX == 0xFFFF'FFFF'FFFF'FFFF
 #if defined ( __clang__ ) or defined ( __GNUC__ )
@@ -36,6 +34,10 @@
 #else
 #include "splitmix.hpp"
 #endif
+#elif UINTPTR_MAX == 0xFFFF'FFFF
+#include "jsf.hpp"
+#else
+#error funny pointers detected
 #endif
 
 
@@ -68,7 +70,7 @@ using Rng = splitmix64;
 }
 #endif
 #elif UINTPTR_MAX == 0xFFFF'FFFF
-using Rng = std::minstd_rand;
+using Rng = jsf32;
 [[ nodiscard ]] inline std::uint32_t os_seed ( ) noexcept {
     return std::random_device { } ( );
 }
