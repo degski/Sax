@@ -27,6 +27,8 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include <random>
+
 
 #if UINTPTR_MAX == 0xFFFF'FFFF'FFFF'FFFF
 #if defined ( __clang__ ) or defined ( __GNUC__ )
