@@ -6,6 +6,8 @@
 //              - namespace detail
 //              - renamed to be more in line with STL, no pascal- or camel-case
 //              - #pragma once
+//              - fixed warning : must specify at least one argument for '...'
+//                      parameter of variadic macro
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,6 +47,7 @@
 #define CONCAT_(x, y) EXPAND(x ## y)
 
 
+
 /** When using stl functions which takes iterator parameters of the
   * form (first, last), these macros make it much easier. Simply use
   * ZIP_ALL(container) for a container class that is iterable (that is,
@@ -53,26 +56,26 @@
   * each argument, delegating the call to std::begin and std::end
   * while also supporting pointer types to be called.
 */
-#define ZIP_BEGIN1(x, ...) ::sax::detail::begin(x)
-#define ZIP_BEGIN2(x, ...) ::sax::detail::begin(x), ZIP_BEGIN1(__VA_ARGS__)
-#define ZIP_BEGIN3(x, ...) ::sax::detail::begin(x), ZIP_BEGIN2(__VA_ARGS__)
-#define ZIP_BEGIN4(x, ...) ::sax::detail::begin(x), ZIP_BEGIN3(__VA_ARGS__)
-#define ZIP_BEGIN5(x, ...) ::sax::detail::begin(x), ZIP_BEGIN4(__VA_ARGS__)
-#define ZIP_BEGIN6(x, ...) ::sax::detail::begin(x), ZIP_BEGIN5(__VA_ARGS__)
-#define ZIP_BEGIN7(x, ...) ::sax::detail::begin(x), ZIP_BEGIN6(__VA_ARGS__)
-#define ZIP_BEGIN8(x, ...) ::sax::detail::begin(x), ZIP_BEGIN7(__VA_ARGS__)
+#define ZIP_BEGIN1(x     ) ::sax::detail::help::begin(x)
+#define ZIP_BEGIN2(x, ...) ::sax::detail::help::begin(x), ZIP_BEGIN1(__VA_ARGS__)
+#define ZIP_BEGIN3(x, ...) ::sax::detail::help::begin(x), ZIP_BEGIN2(__VA_ARGS__)
+#define ZIP_BEGIN4(x, ...) ::sax::detail::help::begin(x), ZIP_BEGIN3(__VA_ARGS__)
+#define ZIP_BEGIN5(x, ...) ::sax::detail::help::begin(x), ZIP_BEGIN4(__VA_ARGS__)
+#define ZIP_BEGIN6(x, ...) ::sax::detail::help::begin(x), ZIP_BEGIN5(__VA_ARGS__)
+#define ZIP_BEGIN7(x, ...) ::sax::detail::help::begin(x), ZIP_BEGIN6(__VA_ARGS__)
+#define ZIP_BEGIN8(x, ...) ::sax::detail::help::begin(x), ZIP_BEGIN7(__VA_ARGS__)
 
-#define ZIP_END1(x, ...) ::sax::detail::end(x)
-#define ZIP_END2(x, ...) ::sax::detail::end(x), ZIP_END1(__VA_ARGS__)
-#define ZIP_END3(x, ...) ::sax::detail::end(x), ZIP_END2(__VA_ARGS__)
-#define ZIP_END4(x, ...) ::sax::detail::end(x), ZIP_END3(__VA_ARGS__)
-#define ZIP_END5(x, ...) ::sax::detail::end(x), ZIP_END4(__VA_ARGS__)
-#define ZIP_END6(x, ...) ::sax::detail::end(x), ZIP_END5(__VA_ARGS__)
-#define ZIP_END7(x, ...) ::sax::detail::end(x), ZIP_END6(__VA_ARGS__)
-#define ZIP_END8(x, ...) ::sax::detail::end(x), ZIP_END7(__VA_ARGS__)
+#define ZIP_END1(x     ) ::sax::detail::help::end(x)
+#define ZIP_END2(x, ...) ::sax::detail::help::end(x), ZIP_END1(__VA_ARGS__)
+#define ZIP_END3(x, ...) ::sax::detail::help::end(x), ZIP_END2(__VA_ARGS__)
+#define ZIP_END4(x, ...) ::sax::detail::help::end(x), ZIP_END3(__VA_ARGS__)
+#define ZIP_END5(x, ...) ::sax::detail::help::end(x), ZIP_END4(__VA_ARGS__)
+#define ZIP_END6(x, ...) ::sax::detail::help::end(x), ZIP_END5(__VA_ARGS__)
+#define ZIP_END7(x, ...) ::sax::detail::help::end(x), ZIP_END6(__VA_ARGS__)
+#define ZIP_END8(x, ...) ::sax::detail::help::end(x), ZIP_END7(__VA_ARGS__)
 
 #define ZIP_ALL(...) EXPAND(::sax::zipit(EXPAND(CONCAT(ZIP_BEGIN, NARGS(__VA_ARGS__)))(__VA_ARGS__)),  \
-                            ::sax::zipit(EXPAND(CONCAT(ZIP_END,   NARGS(__VA_ARGS__)))(__VA_ARGS__)))
+            ::sax::zipit(EXPAND(CONCAT(ZIP_END, NARGS(__VA_ARGS__)))(__VA_ARGS__)))
 
 
 
@@ -170,7 +173,7 @@ template <class... Iter> using SelectIterTag_t = typename SelectIterTag< Iter...
 
 // Avoids some boilerplate in the definition of the 'ZipIter' class
 template <typename... Iters>
-using IteratorBase = std::iterator < detail::SelectIterTag_t< typename std::iterator_traits< Iters >::iterator_category... >,
+using IteratorBase = std::iterator < SelectIterTag_t< typename std::iterator_traits< Iters >::iterator_category... >,
     std::tuple< typename std::iterator_traits< Iters >::value_type... > >;
 
 

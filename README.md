@@ -24,7 +24,7 @@ Implementation of lane-crossing rotates and shifts in AVX2.
 
 ### statistics.hpp
 
-Returns, in one pass through the data [i.e. sort of efficiently] - using [Wellford's method](https://www.johndcook.com/blog/standard_deviation/), the minimum, maximum, mean, variance, sample standard deviation and population standard deviation of the data in a std::tuple.
+Returns, in one pass through the data [i.e. std::sort of efficiently] - using [Wellford's method](https://www.johndcook.com/blog/standard_deviation/), the minimum, maximum, mean, variance, sample standard deviation and population standard deviation of the data in a std::tuple.
 
     template<typename T>
     [[ nodiscard ]] std::tuple<T, T, T, T, T, T> statistics ( T const * const data, const std::size_t n ) noexcept;
@@ -117,92 +117,90 @@ You can iterate and use stl algorithms on multiple iterators at the same time ea
 
 ```c++
 
-#include <iostream>
+#include <sax/iostream.hpp>
 #include <vector>
 #include <algorithm>
 #include <numeric>
 
 #include <sax/zip.hpp>  // The header file
 
-using namespace std;
-using namespace sax;    // sax namespace
-
 
 int main ()
 {
-    vector<int> v = {1, 2, 3, 4, 5};
-    array<double, 5> u = {5, 4, 3, 2, 1};
+    std::vector<int> v = {1, 2, 3, 4, 5};
+    std::array<double, 5> u = {5, 4, 3, 2, 1};
 
 
 
     // Iterating through both containers using std::for_each
-    for_each(zip_begin(v, u), zip_end(v, u), [](auto tup){
-        cout << get<0>(tup) << "     " << get<1>(tup) << "\n";
+    std::for_each(sax::zip_begin(v, u), sax::zip_end(v, u), [](auto tup){
+        std::cout << std::get<0>(tup) << "     " << std::get<1>(tup) << nl;
     });
 
 
 
-    // Using the unzip to unpack those values.
+    // Using the sax::unzip to unpack those values.
     // They can be taken as references too
-    for_each(zip_begin(v, u), zip_end(v, u), unzip([](int x, double y){
-        cout << x << "     " << y << "\n";
+    std::for_each(sax::zip_begin(v, u), sax::zip_end(v, u), sax::unzip([](int x, double y){
+        std::cout << x << "     " << y << nl;
     }));
 
 
 
     // Using for range -- The return is a tuple containing references
-    for(auto tup : zip(v, u)) unzip(tup, [](int x, double y){
-        cout << x << "     " << y << "\n";
+    for(auto tup : sax::zip(v, u)) sax::unzip(tup, [](int x, double y){
+        std::cout << x << "     " << y << nl;
     });
 
 
 
     // Or using a function that encapsulates the above.
     // The lambda comes after the variadic arguments 
-    zip_for_each(v, u, [](int x, double y){
-        cout << x << "     " << y << "\n";
+    sax::zip_for_each(v, u, [](int x, double y){
+        std::cout << x << "     " << y << nl;
     });
-
 
 
 
     // Sorting both containers using the std::tuple operator <
-    sort(zipit(v.begin(), u.begin()), zipit(v.end(), u.end()));
+    std::sort(sax::zipit(v.begin(), u.begin()), sax::zipit(v.end(), u.end()));
 
 
     // or
-    sort(zip_begin(v, u), zip_end(v, u));
+    std::sort(sax::zip_begin(v, u), sax::zip_end(v, u));
 
 
     // or even using a macro that does exactly the same as above
-    sort(ZIP_ALL(v, u));
+    std::sort(ZIP_ALL(v, u));
 
 
     // using a custom comparison
-    sort(ZIP_ALL(v, u), [](auto tup1, auto tup2){
-        return get<0>(tup1) + get<1>(tup1) < get<0>(tup2) + get<1>(tup2);
+    std::sort(ZIP_ALL(v, u), [](auto tup1, auto tup2){
+        return std::get<0>(tup1) + std::get<1>(tup1) < std::get<0>(tup2) + std::get<1>(tup2);
     });
 
 
-    // or using the unzip to magically unpack those tuples
-    sort(ZIP_ALL(v, u), unzip([](int v1, double u1, int v2, double u2){
+    // or using the sax::unzip to magically unpack those tuples
+    std::sort(ZIP_ALL(v, u), sax::unzip([](int v1, double u1, int v2, double u2){
         return v1 + u1 < v2 + u2;
     }));
 
 
 
     // It is really that easy
-    transform(ZIP_ALL(v, u), zip_begin(v, u), unzip([](int x, double y){
-        return make_tuple(0, 0.0);
+    std::transform(ZIP_ALL(v, u), sax::zip_begin(v, u), sax::unzip([](int x, double y){
+        return std::make_tuple(0, 0.0);
     }));
 
 
-    reverse(ZIP_ALL(v, u));
+    std::reverse(ZIP_ALL(v, u));
 
 
-    accumulate(ZIP_ALL(v, u), 0.0, unzip([](double sum, int x, double y){
+    auto sum = std::accumulate(ZIP_ALL(v, u), 0.0, sax::unzip([](double sum, int x, double y){
         return sum + x + y;
     }));
+
+    std::cout << sum << nl;
 
 
     return EXIT_SUCCESS;
