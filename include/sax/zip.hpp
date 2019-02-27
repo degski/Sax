@@ -8,6 +8,7 @@
 //              - #pragma once
 //              - fixed warning : must specify at least one argument for '...'
 //                      parameter of variadic macro
+//              - [[ nodiscard ]]
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -370,14 +371,14 @@ class zip {
   * at least 1 element
 */
 template <typename T, typename... Iterators>
-auto zipit (T&& t, Iterators&&... iterators)
+[[ nodiscard ]] auto zipit (T&& t, Iterators&&... iterators)
 {
     return detail::zipit<T, Iterators...>(std::forward<T>(t), std::forward<Iterators>(iterators)...);
 }
 
 
 template <typename T, typename... Containers, std::enable_if_t< !std::is_pointer< T >::value, int > = 0>
-auto zip (T&& t, Containers&&... containers)
+[[ nodiscard ]] auto zip (T&& t, Containers&&... containers)
 {
     return detail::zip<T, Containers...>(std::forward<T>(t), std::forward<Containers>(containers)...);
 }
@@ -391,19 +392,19 @@ auto zip (T&& t, Containers&&... containers)
   * a std::pair containing both the begin and end of the iterators
 */
 template <typename T, typename... Containers, std::enable_if_t< !std::is_pointer< T >::value, int > = 0>
-auto zip_begin (T&& t, Containers&&... containers)
+[[ nodiscard ]] auto zip_begin (T&& t, Containers&&... containers)
 {
     return detail::zipit(detail::help::begin(std::forward<T>(t)), detail::help::begin(std::forward<Containers>(containers))...);
 }
 
 template <typename T, typename... Containers, std::enable_if_t< !std::is_pointer< T >::value, int > = 0>
-auto zip_end (T&& t, Containers&&... containers)
+[[ nodiscard ]] auto zip_end (T&& t, Containers&&... containers)
 {
     return detail::zipit(detail::help::end(std::forward<T>(t)), detail::help::end(std::forward<Containers>(containers))...);
 }
 
 template <typename T, typename... Containers, std::enable_if_t< !std::is_pointer< T >::value, int > = 0>
-auto zip_all (T&& t, Containers&&... containers)
+[[ nodiscard ]] auto zip_all (T&& t, Containers&&... containers)
 {
     return std::make_pair(zip_begin(std::forward<T>(t), std::forward<Containers>(containers)...),
                           zip_end  (std::forward<T>(t), std::forward<Containers>(containers)...));
@@ -456,19 +457,19 @@ struct unzip {
   * as well.
 */
 template <class F>
-auto unzip (F f)
+[[ nodiscard ]] auto unzip (F f)
 {
     return detail::unzip<F>(f);
 }
 
 template <class Tuple, class Function, std::size_t... Is>
-decltype(auto) unzip (Tuple&& tup, Function function, std::index_sequence<Is...>)
+[[ nodiscard ]] decltype(auto) unzip (Tuple&& tup, Function function, std::index_sequence<Is...>)
 {
     return function( std::get< Is >( std::forward<Tuple>(tup) )... );
 }
 
 template <class Tuple, class Function>
-decltype(auto) unzip (Tuple&& tup, Function function)
+[[ nodiscard ]] decltype(auto) unzip (Tuple&& tup, Function function)
 {
     return unzip(std::forward<Tuple>(tup), function, std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>());
 }

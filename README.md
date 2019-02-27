@@ -108,7 +108,7 @@ C++17-compliant (much) faster drop-in replacement for [`std::uniform_int_distrib
 
 ### zip.hpp
 
-A header only implementation of an iterator zipper made in C++14. `zip.hpp` is just a slight mod of [`ZipIter`](https://github.com/matheuspf/ZipIter).
+A header only implementation of an iterator zipper made in C++17. `zip.hpp` is just a slight mod of [`ZipIter`(C++14)](https://github.com/matheuspf/ZipIter).
 
 You can iterate and use stl algorithms on multiple iterators at the same time easily with no runtime overhead (using -O3 optimization flag).
 
