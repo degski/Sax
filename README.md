@@ -117,10 +117,12 @@ You can iterate and use stl algorithms on multiple iterators at the same time ea
 
 ```c++
 
+#include <algorithm>
+#include <array>
+#include <numeric>
 #include <sax/iostream.hpp>
 #include <vector>
-#include <algorithm>
-#include <numeric>
+
 
 #include <sax/zip.hpp>  // The header file
 
