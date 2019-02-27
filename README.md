@@ -106,6 +106,113 @@ returns a vector of strings "Cheech and" and "Chong".
 C++17-compliant (much) faster drop-in replacement for [`std::uniform_int_distribution`](https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution), i.e. [`sax::uniform_int_distribution`](https://github.com/degski/uniform_int_distribution_fast), based on the bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
 
 
+### zip.hpp
+
+A header only implementation of an iterator zipper made in C++14. `zip.hpp` is just a slight mod of [`ZipIter`](https://github.com/matheuspf/ZipIter).
+
+You can iterate and use stl algorithms on multiple iterators at the same time easily with no runtime overhead (using -O3 optimization flag).
+
+#### Examples
+
+
+```c++
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <numeric>
+
+#include <sax/zip.hpp>  // The header file
+
+using namespace std;
+using namespace sax;    // sax namespace
+
+
+int main ()
+{
+    vector<int> v = {1, 2, 3, 4, 5};
+    array<double, 5> u = {5, 4, 3, 2, 1};
+
+
+
+    // Iterating through both containers using std::for_each
+    for_each(zip_begin(v, u), zip_end(v, u), [](auto tup){
+        cout << get<0>(tup) << "     " << get<1>(tup) << "\n";
+    });
+
+
+
+    // Using the unzip to unpack those values.
+    // They can be taken as references too
+    for_each(zip_begin(v, u), zip_end(v, u), unzip([](int x, double y){
+        cout << x << "     " << y << "\n";
+    }));
+
+
+
+    // Using for range -- The return is a tuple containing references
+    for(auto tup : zip(v, u)) unzip(tup, [](int x, double y){
+        cout << x << "     " << y << "\n";
+    });
+
+
+
+    // Or using a function that encapsulates the above.
+    // The lambda comes after the variadic arguments 
+    zip_for_each(v, u, [](int x, double y){
+        cout << x << "     " << y << "\n";
+    });
+
+
+
+
+    // Sorting both containers using the std::tuple operator <
+    sort(zipit(v.begin(), u.begin()), zipit(v.end(), u.end()));
+
+
+    // or
+    sort(zip_begin(v, u), zip_end(v, u));
+
+
+    // or even using a macro that does exactly the same as above
+    sort(ZIP_ALL(v, u));
+
+
+    // using a custom comparison
+    sort(ZIP_ALL(v, u), [](auto tup1, auto tup2){
+        return get<0>(tup1) + get<1>(tup1) < get<0>(tup2) + get<1>(tup2);
+    });
+
+
+    // or using the unzip to magically unpack those tuples
+    sort(ZIP_ALL(v, u), unzip([](int v1, double u1, int v2, double u2){
+        return v1 + u1 < v2 + u2;
+    }));
+
+
+
+    // It is really that easy
+    transform(ZIP_ALL(v, u), zip_begin(v, u), unzip([](int x, double y){
+        return make_tuple(0, 0.0);
+    }));
+
+
+    reverse(ZIP_ALL(v, u));
+
+
+    accumulate(ZIP_ALL(v, u), 0.0, unzip([](double sum, int x, double y){
+        return sum + x + y;
+    }));
+
+
+
+
+  return 0;
+}
+```
+<br>
+
+
 ## License
 
 MIT, unless the license in the individual file states differently. The library contains no (L)GPL'ed code.
