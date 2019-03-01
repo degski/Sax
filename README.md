@@ -76,7 +76,7 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals o
 
 returns a vector of string_views "Cheech" and "Chong", this implies the passed-in string should be ket alive and unmodified.
 
-To deal with tabs, pass in a "\t" as a delimiter.
+To deal with tabs, pass in a "\t" ot '\t' as a delimiter.
 
 Lines in a csv-file are easily parsed with the combo of 
 `",", " ", "\t"` as delimiters, which will parse most 
