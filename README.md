@@ -74,7 +74,7 @@ Just pass in a STL-string, followed by a number of delimiters (string-literals o
     std::string s { "Cheech and Chong" };
     auto vector = sax::string_split ( s, "and" );
 
-returns a vector of strings "Cheech" and "Chong".
+returns a vector of string_views "Cheech" and "Chong", this implies the passed-in string should be ket alive and unmodified.
 
 To deal with tabs, pass in a "\t" as a delimiter.
 
@@ -85,17 +85,17 @@ csv-files out of the box.
     std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, "and" );
 
-returns a vector of strings "Cheech" and ", Chong".
+returns a vector of string_views "Cheech" and ", Chong".
 
     std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, "and", "," );
 
-returns a vector of strings "Cheech" and "Chong".
+returns a vector of string_views "Cheech" and "Chong".
     
     std::string s { "Cheech and, Chong" };
     auto vector = sax::string_split ( s, " and ", "," );
     
-returns a vector of strings "Cheech and" and "Chong".
+returns a vector of string_views "Cheech and" and "Chong".
 
 
 ### uniform_int_distribution.hpp
