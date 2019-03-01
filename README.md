@@ -64,20 +64,17 @@ This was discussed on [reddit](https://www.reddit.com/r/cpp/comments/ar4ghs/stdp
 
 A string splitter allowing for strings to be used as delimiters.
 
-Just pass in a STL-string, followed by a number of delimiters (string-literals). **The order of the passed-in delimiters is important as the delimiters are applied left to right on the (sub-strings) of the previous parsing pass.**
+    template<typename CharT, typename ... Delimiters>
+    [[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( const std::basic_string<CharT> & string_, Delimiters ... delimiters_ );
+
+
+Just pass in a STL-string, followed by a number of delimiters (string-literals or characters).
 
 
     std::string s { "Cheech and Chong" };
     auto vector = sax::string_split ( s, "and" );
 
 returns a vector of strings "Cheech" and "Chong".
-
-Leading and trailing white-space is trimmed by default.
-
-    std::string s { " a,      bc d and e " };
-    auto vector = sax::string_split ( s, "and", ",", " " );
-
-returns a vector of strings "a", "bc", "d" and "e".
 
 To deal with tabs, pass in a "\t" as a delimiter.
 
