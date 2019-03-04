@@ -1,6 +1,7 @@
 
 # Sax (C++17)
 
+
 Sax, acronymed loosely after *Swiss army x (something)* [could be a knife, a sword, a machete, a gun or a bazooka, i.e. to speak with Bjarne: "it might shoot your leg off"], which is short and distinctive and allows for the namespace `sax`. Sax is a collection of small useful (in my mind) libraries I've either written or collected over time, and can all be used independently. 
 
 All libraries are within the `sax` namespace, also those which were not contained in a namespace initially. An example of the latter is Howard Hinnant's `short_alloc`, hence `sax::short_alloc`, but otherwise vanilla. The convenience header `iostream.hpp` is an exception to this rule. `iostream.hpp` allows for some type-safe short-cuts in conjunction with `std::cout` or `std::wcout` and friends and pulls in `<iostream>`.
@@ -10,9 +11,12 @@ No dependencies other than your local STL.
 **Disclaimer: not all libraries are written by me and/or might contain bits of code lifted of stackoverflow.com, reddit.com/r/cpp, github.com and maybe other places.**
 
 
+
 ## Individual libraries
 
+
 ### shift_rotate_avx2.hpp
+
 
 Implementation of lane-crossing rotates and shifts in AVX2.
 
@@ -22,7 +26,9 @@ Implementation of lane-crossing rotates and shifts in AVX2.
     [[ nodiscard ]] inline __m256i _mm256_rri_si256 ( __m256i a, int n ) noexcept;
 
 
+
 ### statistics.hpp
+
 
 Returns, in one pass through the data [i.e. std::sort of efficiently] - using [Wellford's method](https://www.johndcook.com/blog/standard_deviation/), the minimum, maximum, mean, variance, sample standard deviation and population standard deviation of the data in a std::tuple.
 
@@ -32,7 +38,9 @@ Returns, in one pass through the data [i.e. std::sort of efficiently] - using [W
 `statistics` is purposely fitted with a C-interface, as to allow for maximum flexibility.
 
 
+
 ### stl.hpp
+
 
 For use with a std::variant (or drop-in) and std::visit using lambda's as
 per the [example #4](https://en.cppreference.com/w/cpp/utility/variant/visit)
@@ -60,23 +68,28 @@ This was discussed on [reddit](https://www.reddit.com/r/cpp/comments/ar4ghs/stdp
     struct pair;
 
 
+
 ### string_split.hpp
+
 
 A string splitter allowing for strings to be used as delimiters.
 
     template<typename CharT, typename ... Delimiters>
-    [[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( const std::basic_string<CharT> & string_, Delimiters ... delimiters_ );
+    [[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string<CharT> const & string_, Delimiters const ... delimiters_ );
 
 
+What the function does: Remove from the string any delimiters passed in, doing that left to right, applying the delimiters left to right and return the now separate bits left as a `std::vector` of string_view's over the original string. The latter means the string has to outlive the vector of string views.
+
+The above does means that depending on what kind of delimiters you put (as they can be strings, which can interact with each other), that the order of the delimiters has significance.
 Just pass in a STL-string, followed by a number of delimiters (string-literals or characters).
 
 
     std::string s { "Cheech and Chong" };
     auto vector = sax::string_split ( s, "and" );
 
-returns a vector of string_views "Cheech" and "Chong", this implies the passed-in string should be ket alive and unmodified.
+returns a vector of string_views "Cheech" and "Chong", this implies the passed-in string should be kept alive and stay unmodified.
 
-To deal with tabs, pass in a "\t" ot '\t' as a delimiter.
+To deal with tabs, f.e., pass in a "\t" or '\t' as a delimiter.
 
 Lines in a csv-file are easily parsed with the combo of 
 `",", " ", "\t"` as delimiters, which will parse most 
@@ -98,12 +111,16 @@ returns a vector of string_views "Cheech" and "Chong".
 returns a vector of string_views "Cheech and" and "Chong".
 
 
+
 ### uniform_int_distribution.hpp
+
 
 C++17-compliant (much) faster drop-in replacement for [`std::uniform_int_distribution`](https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution), i.e. [`sax::uniform_int_distribution`](https://github.com/degski/uniform_int_distribution_fast), based on the bounded_rand-function, as per the [paper by Daniel Lemire](https://arxiv.org/abs/1805.10941) and optimizations added to bounded_rand [published by Melissa E. O'Neill](http://www.pcg-random.org/posts/bounded-rands.html).
 
 
+
 ### zip.hpp
+
 
 A header only implementation of an iterator zipper made in C++17. `zip.hpp` is just a slight mod of [`ZipIter`(C++14)](https://github.com/matheuspf/ZipIter).
 

@@ -21,12 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
+// The basis for wrting this function was laid in:
+// https://codereview.stackexchange.com/a/214563/194172
+
+
 #pragma once
 
+#include <algorithm>
+#include <array>
+#include <functional>
 #include <sax/iostream.hpp>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 
@@ -49,142 +58,116 @@ void print ( const std::vector<T> & string_vector_ ) noexcept {
     }
 }
 
-}
+} // namespace sax
 
 
 namespace sax::detail {
 
-/*
-
 template<typename CharT>
-[ [ nodiscard ] ] constexpr bool starts_with ( std::basic_string_view<CharT> s, std::basic_string_view<CharT> x ) noexcept {
-    return s.size ( ) >= x.size ( ) and s.compare ( 0, x.size ( ), x ) == 0;
+[[ nodiscard ]] constexpr std::basic_string_view<CharT> make_string_view ( std::basic_string_view<CharT> const & x_ ) noexcept {
+    return x_; // guaranteed copy elision.
 }
 template<typename CharT>
-[ [ nodiscard ] ] constexpr bool starts_with ( std::basic_string_view<CharT> s, CharT x ) noexcept {
-    return starts_with ( s, std::basic_string_view<CharT> ( std::addressof ( x ), 1 ) );
+[[ nodiscard ]] constexpr std::basic_string_view<CharT> make_string_view ( CharT const & x_ ) noexcept {
+    return std::basic_string_view<CharT> ( std::addressof ( x_ ), 1 );
 }
 template<typename CharT>
-[ [ nodiscard ] ] constexpr bool starts_with ( std::basic_string_view<CharT> s, const CharT * x ) noexcept {
-    return starts_with ( s, std::basic_string_view<CharT> ( x ) );
-}
-template<typename CharT>
-[ [ nodiscard ] ] constexpr bool ends_with ( std::basic_string_view<CharT> s, std::basic_string_view<CharT> x ) noexcept {
-    return s.size ( ) >= x.size ( ) && s.compare ( s.size ( ) - x.size ( ), std::basic_string_view<CharT>::npos, x ) == 0;
-}
-template<typename CharT>
-[ [ nodiscard ] ] constexpr bool ends_with ( std::basic_string_view<CharT> s, CharT x ) noexcept {
-    return ends_with ( s, std::basic_string_view<CharT> ( std::addressof ( x ), 1 ) );
-}
-template<typename CharT>
-[ [ nodiscard ] ] constexpr bool ends_with ( std::basic_string_view<CharT> s, const CharT * x ) noexcept {
-    return ends_with ( s, std::basic_string_view<CharT> ( x ) );
-}
-
-*/
-
-template<typename CharT>
-[ [ nodiscard ] ] constexpr std::basic_string_view<CharT> make_string_view ( std::basic_string_view<CharT> x ) noexcept {
-    return x; // RVO.
-}
-template<typename CharT>
-[ [ nodiscard ] ] constexpr std::basic_string_view<CharT> make_string_view ( CharT x ) noexcept {
-    return std::basic_string_view<CharT> ( std::addressof ( x ), 1 );
-}
-template<typename CharT>
-[ [ nodiscard ] ] constexpr std::basic_string_view<CharT> make_string_view ( const CharT * x ) noexcept {
-    return std::basic_string_view<CharT> ( x );
+[[ nodiscard ]] constexpr std::basic_string_view<CharT> make_string_view ( CharT const * const & x_ ) noexcept {
+    return std::basic_string_view<CharT> ( x_ );
 }
 
 
-template<typename CharT>
-constexpr void remove_prefix ( std::basic_string_view<CharT> & s, bool & removed, std::basic_string_view<CharT> x ) noexcept {
-    if ( s.size ( ) >= x.size ( ) and s.compare ( 0, x.size ( ), x ) == 0 ) {
-        s.remove_prefix ( x.size ( ) );
-        removed = removed or true;
-    };
+// From https://stackoverflow.com/a/40030044/646940
+
+template<typename Array, typename SizeT>
+constexpr void sort_impl ( Array & array_, SizeT left_, SizeT right_ ) {
+    if ( left_ < right_ ) {
+        SizeT m = left_;
+        for ( SizeT i = left_ + 1; i < right_; i++ )
+            if ( array_ [ i ] < array_ [ left_ ] )
+                std::swap ( array_ [ ++m ], array_ [ i ] );
+        std::swap ( array_ [ left_ ], array_ [ m ] );
+        sort_impl ( array_, left_, m );
+        sort_impl ( array_, m + 1, right_ );
+    }
 }
-template<typename CharT>
-constexpr void remove_prefix ( std::basic_string_view<CharT> & s, bool & removed, CharT x ) noexcept {
-    if ( s.size ( ) >= 1 and s [ 0 ] == x ) {
-        s.remove_prefix ( 1 );
-        removed = removed or true;
-    };
-}
-template<typename CharT>
-constexpr void remove_prefix ( std::basic_string_view<CharT> & s, bool & removed, const CharT * x ) noexcept {
-    remove_prefix ( s, removed, std::basic_string_view<CharT> ( x ) );
-}
-template<typename CharT, typename ... Args>
-constexpr void remove_prefix ( std::basic_string_view<CharT> & s_, Args ... args_ ) noexcept {
-    bool removed = false;
-    do {
-        removed = false;
-        ( remove_prefix ( s_, removed, std::forward<Args> ( args_ ) ), ... );
-    } while ( removed ); // Keep removing untill nothing more can be removed.
+
+template<typename Array>
+constexpr Array sort ( Array array_ ) {
+    auto sorted = array_;
+    sort_impl ( sorted, typename Array::size_type ( 0 ), Array::size ( ) );
+    return sorted;
 }
 
 
-template<typename CharT>
-constexpr void remove_suffix ( std::basic_string_view<CharT> & s, bool & removed, std::basic_string_view<CharT> x ) noexcept {
-    if ( s.size ( ) >= x.size ( ) and s.compare ( s.size ( ) - x.size ( ), std::basic_string_view<CharT>::npos, x ) == 0 ) {
-        s.remove_suffix ( x.size ( ) );
-        removed = removed or true;
-    };
-}
-template<typename CharT>
-constexpr void remove_suffix ( std::basic_string_view<CharT> & s, bool & removed, CharT x ) noexcept {
-    remove_suffix ( s, removed, std::basic_string_view<CharT> ( std::addressof ( x ), 1 ) );
-}
-template<typename CharT>
-constexpr void remove_suffix ( std::basic_string_view<CharT> & s, bool & removed, const CharT * x ) noexcept {
-    remove_suffix ( s, removed, std::basic_string_view<CharT> ( x ) );
-}
-template<typename CharT, typename ... Args>
-constexpr void remove_suffix ( std::basic_string_view<CharT> & s_, Args ... args_ ) noexcept {
-    bool removed = false;
-    do {
-        removed = false;
-        ( remove_suffix ( s_, removed, std::forward<Args> ( args_ ) ), ... );
-    } while ( removed ); // Keep removing untill nothing more can be removed.
-}
+template <typename CharT, std::size_t Size>
+struct StringViewArray {
+    using size_type = typename std::basic_string_view<CharT>::size_type;
+    template<typename ... Delimiters>
+    constexpr StringViewArray ( Delimiters const & ... delimiters_ ) noexcept :
+        data { make_string_view<CharT> ( delimiters_ ) ... } { }
+    constexpr StringViewArray ( const StringViewArray & array_ ) noexcept :
+        data ( array_.data ) { }
+    constexpr std::basic_string_view<CharT> const & operator [ ] ( std::size_t i_ ) const noexcept {
+        return data [ i_ ];
+    }
+    constexpr static size_type size ( ) noexcept {
+        return static_cast<size_type> ( Size );
+    }
+    constexpr std::basic_string_view<CharT> const * begin ( ) const noexcept {
+        return data.data ( );
+    }
+    constexpr std::basic_string_view<CharT> const * end ( ) const noexcept {
+        return data.data ( ) + Size;
+    }
+    private:
+    std::array<std::basic_string_view<CharT>, Size> data;
+};
 
 
-template<typename CharT, typename SizeT, typename StringyThing>
-constexpr void find ( std::basic_string_view<CharT> & s, SizeT & f_, StringyThing x_ ) noexcept {
-    f_ = std::min ( s.find ( make_string_view<CharT> ( x_ ) ), f_ );
-}
-template<typename CharT, typename ... Args>
-[ [ nodiscard ] ] constexpr auto find ( std::basic_string_view<CharT> & s_, Args ... args_ ) noexcept {
-    auto found = std::basic_string_view<CharT>::npos;
-    ( find ( s_, found, std::forward<Args> ( args_ ) ), ... );
-    return found;
+template<typename CharT, typename SizeT>
+[[ nodiscard ]] constexpr SizeT match ( std::basic_string_view<CharT> const & s_, std::basic_string_view<CharT> const & x_ ) noexcept {
+    if ( s_.size ( ) >= x_.size ( ) and s_.compare ( 0, x_.size ( ), x_ ) == 0 )
+        return x_.size ( );
+    return 0;
 }
 
+template<typename CharT, typename Array>
+[[ nodiscard ]] constexpr auto any_matches ( std::basic_string_view<CharT> const & s_, Array const & array_ ) noexcept {
+    using size_type = typename std::basic_string_view<CharT>::size_type;
+    size_type match_length = 0;
+    for ( size_type i = 0; i < Array::size ( ); ++i )
+        if ( ( match_length = match<CharT, size_type> ( s_, array_ [ i ] ) ) )
+            break;
+    return match_length;
 }
+
+} // namespace sax::detail
+
 
 namespace sax {
 
 template<typename CharT, typename ... Delimiters>
-[ [ nodiscard ] ] std::vector<std::basic_string_view<CharT>> string_split ( const std::basic_string<CharT> & string_, Delimiters ... delimiters_ ) {
-    using size_type = typename std::basic_string_view<CharT>::size_type;
+[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string<CharT> const & string_, Delimiters const ... delimiters_ ) {
+    if ( string_.empty ( ) )
+        return { };
     std::basic_string_view<CharT> string_view ( string_ );
+    using sva = detail::StringViewArray<CharT, sizeof ... ( Delimiters )>;
+    const sva params ( delimiters_ ... );
     std::vector<std::basic_string_view<CharT>> string_view_vector;
     string_view_vector.reserve ( 4 ); // Avoid small size re-allocating, 0 > 1 > 2 > 3 > 4 > 6, now 4 > 6 > 9 etc.
-    // Remove trailing delimiters.
-    detail::remove_suffix ( string_view, std::forward<Delimiters> ( delimiters_ ) ... );
-    // Parse the string_view left to right.
     while ( true ) {
-        detail::remove_prefix ( string_view, std::forward<Delimiters> ( delimiters_ ) ... );
-        const size_type pos = detail::find ( string_view, std::forward<Delimiters> ( delimiters_ ) ... );
-        if ( std::basic_string_view<CharT>::npos == pos ) {
-            string_view_vector.emplace_back ( std::move ( string_view ) );
+        while ( const auto match_length = detail::any_matches ( string_view, params ) )
+            string_view.remove_prefix ( match_length );
+        if ( string_view.empty ( ) )
             break;
-        }
-        string_view_vector.emplace_back ( string_view.data ( ), pos );
-        string_view.remove_prefix ( pos );
+        const auto match_start = string_view.data ( );
+        do {
+            string_view.remove_prefix ( 1 );
+        } while ( string_view.size ( ) and not ( detail::any_matches ( string_view, params ) ) );
+        string_view_vector.emplace_back ( match_start, string_view.data ( ) - match_start );
     }
     return string_view_vector;
 }
 
-}
+} // namespace sax
