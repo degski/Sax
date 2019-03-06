@@ -29,7 +29,7 @@
 namespace sax {
 
 template <typename Derived>
-struct singleton {
+struct singleton final {
 
     singleton ( ) = default;
     singleton ( const singleton & ) = delete;
@@ -48,7 +48,7 @@ struct singleton {
 
 
 template <typename Derived>
-struct thread_singleton {
+struct thread_singleton final {
 
     thread_singleton ( ) = default;
     thread_singleton ( const thread_singleton & ) = delete;
