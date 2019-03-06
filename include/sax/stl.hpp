@@ -114,7 +114,7 @@ struct pair {
 // https://www.fluentcpp.com/2019/03/05/for_each_arg-applying-a-function-to-each-argument-of-a-function-in-cpp/
 
 template<typename F, typename ... Args>
-F for_each_arg ( F f, Args &&...args ) {
+F for_each_arg ( F f, Args && ... args ) {
     ( f ( std::forward<Args> ( args ) ), ... );
     return f;
 }
