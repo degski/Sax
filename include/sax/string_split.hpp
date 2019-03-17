@@ -81,12 +81,14 @@ template<typename CharT>
 
 template<typename Array, typename SizeT>
 constexpr void sort_impl ( Array & array_, SizeT left_, SizeT right_ ) {
+    auto swap = [ ] ( auto & a, auto & b ) { auto const t = a; a = b; b = t; };
+    if ( left_ < right_ ) {
     if ( left_ < right_ ) {
         SizeT m = left_;
         for ( SizeT i = left_ + 1; i < right_; i++ )
             if ( array_ [ i ] < array_ [ left_ ] )
-                std::swap ( array_ [ ++m ], array_ [ i ] );
-        std::swap ( array_ [ left_ ], array_ [ m ] );
+                swap ( array_ [ ++m ], array_ [ i ] );
+        swap ( array_ [ left_ ], array_ [ m ] );
         sort_impl ( array_, left_, m );
         sort_impl ( array_, m + 1, right_ );
     }
