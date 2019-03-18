@@ -28,6 +28,7 @@
 #include <cstdlib>
 
 #include <algorithm>
+#include <future>
 #include <iterator>
 #include <type_traits>
 #include <utility>
@@ -117,6 +118,48 @@ template<typename F, typename ... Args>
 F for_each_arg ( F f, Args && ... args ) {
     ( f ( std::forward<Args> ( args ) ), ... );
     return f;
+}
+
+
+
+namespace detail {
+
+// https://stackoverflow.com/q/24896622/646940
+
+template<typename Future, typename Work, typename Result>
+class continuation_helper {
+
+    Future m_future;
+    Work m_work;
+
+    public:
+
+    continuation_helper ( Future && future_, Work && work_ ) :
+        m_future ( std::move ( future_ ) ),
+        m_work ( std::move ( work_ ) ) { }
+
+    continuation_helper ( continuation_helper && other_ ) :
+        m_future ( std::move ( other_.m_future ) ),
+        m_work ( std::move ( other_.m_work ) ) { }
+
+    continuation_helper & operator = ( continuation_helper && other_ ) {
+        m_future = std::move ( other_.m_future );
+        m_work = std::move ( other_.m_work );
+        return *this;
+    }
+
+    Result operator ( ) ( ) {
+        m_future.wait ( );
+        return m_work ( std::move ( m_future ) );
+    }
+};
+
+}
+
+
+template<typename Future, typename Work>
+auto then ( Future && future_, Work && work_ ) {
+    return std::async ( std::launch::async, detail::continuation_helper<Future, Work, decltype ( work_ ( std::move ( future_ ) ) )> ( std::move ( future_ ), std::move ( work_ ) ) );
 }
 
 }
