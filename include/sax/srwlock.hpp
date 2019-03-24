@@ -30,13 +30,12 @@
 
 namespace sax {
 
-template < bool L = false >
+template<bool L = true>
 struct SRWLock {
-
 };
 
-template < >
-struct SRWLock < true > {
+template<>
+struct SRWLock<true> {
 
 	void lock ( ) noexcept { AcquireSRWLockExclusive ( &srwlock_handle ); }
 	bool tryLock ( ) noexcept { return TryAcquireSRWLockExclusive ( &srwlock_handle ) != 0; }
@@ -49,15 +48,15 @@ struct SRWLock < true > {
 	SRWLock ( ) noexcept : srwlock_handle ( SRWLOCK_INIT ) { }
 	~SRWLock ( ) noexcept { tryLockRead ( ) ? unlockRead ( ) : unlock ( ); }
 
-	SRWLock < true > & operator = ( const SRWLock < true > & rhs_ ) { return * this; }
+	SRWLock & operator = ( const SRWLock < true > & rhs_ ) { return * this; }
 
 private:
 
 	SRWLOCK srwlock_handle;
 };
 
-template < >
-struct SRWLock < false > {
+template<>
+struct SRWLock<false> {
 
 	void lock ( ) const noexcept { }
 	bool tryLock ( ) const noexcept { return true; }
@@ -67,7 +66,6 @@ struct SRWLock < false > {
 	bool tryLockRead ( ) const noexcept { return true; }
 	void unlockRead ( ) const noexcept { }
 
-	SRWLock < false > & operator = ( const SRWLock < false > & rhs_ ) { return * this; }
+	SRWLock<false> & operator = ( const SRWLock < false > & rhs_ ) { return * this; }
 };
-
 }
