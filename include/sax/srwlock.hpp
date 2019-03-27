@@ -27,27 +27,60 @@
 #include <windef.h>
 #include <WinBase.h>
 
+#include <atomic>
+
 
 namespace sax {
+
+struct SpinLock {
+
+    SpinLock ( const SpinLock & ) = delete;
+    SpinLock & operator = ( const SpinLock & ) = delete;
+
+    void lock ( ) noexcept {
+        while ( flag.test_and_set ( std::memory_order_acquire ) );
+    }
+    [[ nodiscard ]] bool try_lock ( ) noexcept {
+        return not ( flag.test_and_set ( std::memory_order_acquire ) );
+    }
+    void unlock ( ) noexcept {
+        flag.clear ( std::memory_order_release );
+    }
+
+    private:
+
+    alignas ( 64 ) std::atomic_flag flag = ATOMIC_FLAG_INIT;
+};
+
 
 struct SRWLock {
 
     SRWLock ( const SRWLock & ) = delete;
     SRWLock & operator = ( const SRWLock & ) = delete;
 
-    void lock ( ) noexcept { AcquireSRWLockExclusive ( & m_handle ); }
-    [[ nodiscard]] bool try_lock ( ) noexcept { return 0 != TryAcquireSRWLockExclusive ( & m_handle ); }
-    void unlock ( ) noexcept { ReleaseSRWLockExclusive ( & m_handle ); } // Look at this...
+    void lock ( ) noexcept {
+        AcquireSRWLockExclusive ( & m_handle );
+    }
+    [[ nodiscard]] bool try_lock ( ) noexcept {
+        return 0 != TryAcquireSRWLockExclusive ( & m_handle );
+    }
+    void unlock ( ) noexcept {
+        ReleaseSRWLockExclusive ( & m_handle );
+    } // Look at this...
 
-    void lock_read ( ) noexcept { AcquireSRWLockShared ( & m_handle ); }
-    [[ nodiscard ]] bool try_lock_read ( ) noexcept { return 0 != TryAcquireSRWLockShared ( & m_handle ); }
-    void unlock_read ( ) noexcept { ReleaseSRWLockShared ( & m_handle ); }
-
-    SRWLock ( ) noexcept : m_handle ( SRWLOCK_INIT ) { }
+    void lock_read ( ) noexcept {
+        AcquireSRWLockShared ( & m_handle );
+    }
+    [[ nodiscard ]] bool try_lock_read ( ) noexcept {
+        return 0 != TryAcquireSRWLockShared ( & m_handle );
+    }
+    void unlock_read ( ) noexcept {
+        ReleaseSRWLockShared ( & m_handle );
+    }
 
     private:
 
-    alignas ( 64 ) SRWLOCK m_handle;
+    alignas ( 64 ) SRWLOCK m_handle = SRWLOCK_INIT;
 };
 
 }
