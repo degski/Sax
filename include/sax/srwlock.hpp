@@ -30,42 +30,24 @@
 
 namespace sax {
 
-template<bool L = true>
 struct SRWLock {
+
+    SRWLock ( const SRWLock & ) = delete;
+    SRWLock & operator = ( const SRWLock & ) = delete;
+
+    void lock ( ) noexcept { AcquireSRWLockExclusive ( & m_handle ); }
+    [[ nodiscard]] bool try_lock ( ) noexcept { return 0 != TryAcquireSRWLockExclusive ( & m_handle ); }
+    void unlock ( ) noexcept { ReleaseSRWLockExclusive ( & m_handle ); } // Look at this...
+
+    void lock_read ( ) noexcept { AcquireSRWLockShared ( & m_handle ); }
+    [[ nodiscard ]] bool try_lock_read ( ) noexcept { return 0 != TryAcquireSRWLockShared ( & m_handle ); }
+    void unlock_read ( ) noexcept { ReleaseSRWLockShared ( & m_handle ); }
+
+    SRWLock ( ) noexcept : m_handle ( SRWLOCK_INIT ) { }
+
+    private:
+
+    alignas ( 64 ) SRWLOCK m_handle;
 };
 
-template<>
-struct SRWLock<true> {
-
-	void lock ( ) noexcept { AcquireSRWLockExclusive ( &srwlock_handle ); }
-	bool tryLock ( ) noexcept { return TryAcquireSRWLockExclusive ( &srwlock_handle ) != 0; }
-	void unlock ( ) noexcept { ReleaseSRWLockExclusive ( &srwlock_handle ); } // Look at this...
-
-	void lockRead ( ) noexcept { AcquireSRWLockShared ( &srwlock_handle ); }
-	bool tryLockRead ( ) noexcept { return TryAcquireSRWLockShared ( &srwlock_handle ) != 0; }
-	void unlockRead ( ) noexcept { ReleaseSRWLockShared ( &srwlock_handle ); }
-
-	SRWLock ( ) noexcept : srwlock_handle ( SRWLOCK_INIT ) { }
-	~SRWLock ( ) noexcept { tryLockRead ( ) ? unlockRead ( ) : unlock ( ); }
-
-	SRWLock & operator = ( const SRWLock < true > & rhs_ ) { return * this; }
-
-private:
-
-	SRWLOCK srwlock_handle;
-};
-
-template<>
-struct SRWLock<false> {
-
-	void lock ( ) const noexcept { }
-	bool tryLock ( ) const noexcept { return true; }
-	void unlock ( ) const noexcept { }
-
-	void lockRead ( ) const noexcept { }
-	bool tryLockRead ( ) const noexcept { return true; }
-	void unlockRead ( ) const noexcept { }
-
-	SRWLock<false> & operator = ( const SRWLock < false > & rhs_ ) { return * this; }
-};
 }
