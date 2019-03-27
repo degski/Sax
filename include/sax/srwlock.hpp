@@ -34,6 +34,7 @@ namespace sax {
 
 struct SpinLock {
 
+    SpinLock ( ) noexcept { }
     SpinLock ( const SpinLock & ) = delete;
     SpinLock & operator = ( const SpinLock & ) = delete;
 
@@ -55,6 +56,7 @@ struct SpinLock {
 
 struct SRWLock {
 
+    SRWLock ( ) noexcept { }
     SRWLock ( const SRWLock & ) = delete;
     SRWLock & operator = ( const SRWLock & ) = delete;
 
