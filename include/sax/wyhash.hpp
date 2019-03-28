@@ -84,7 +84,7 @@ namespace detail {
 constexpr std::uint64_t wyp0 = 0xa0761d6478bd642full, wyp1 = 0xe7037ed1a0b428dbull, wyp2 = 0x8ebc6af09c88c6e3ull;
 constexpr std::uint64_t wyp3 = 0x589965cc75374cc3ull, wyp4 = 0x1d8e4e27c47d124full, wyp5 = 0xeb44accab455d165ull;
 
-static inline CONSTEXPR std::uint64_t wymum ( std::uint64_t a_, std::uint64_t b_ ) noexcept {
+[[ nodiscard ]] static inline CONSTEXPR std::uint64_t wymum ( std::uint64_t a_, std::uint64_t b_ ) noexcept {
     #if GNU and M64
     __uint128_t r = a_; r *= b_; return ( r >> 64 ) ^ r;
     #elif M64
@@ -97,15 +97,15 @@ static inline CONSTEXPR std::uint64_t wymum ( std::uint64_t a_, std::uint64_t b_
     #endif
 }
 
-static inline std::uint64_t wyr08 ( const unsigned char *p ) noexcept { unsigned char v; std::memcpy ( &v, p, 1 ); return v; }
-static inline std::uint64_t wyr16 ( const unsigned char *p ) noexcept { unsigned short v; std::memcpy ( &v, p, 2 ); return v; }
-static inline std::uint64_t wyr32 ( const unsigned char *p ) noexcept { std::uint32_t v; std::memcpy ( &v, p, 4 ); return v; }
-static inline std::uint64_t wyr64 ( const unsigned char *p ) noexcept { std::uint64_t v; std::memcpy ( &v, p, 8 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr08 ( const unsigned char *p ) noexcept { unsigned char v; std::memcpy ( &v, p, 1 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr16 ( const unsigned char *p ) noexcept { unsigned short v; std::memcpy ( &v, p, 2 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr32 ( const unsigned char *p ) noexcept { std::uint32_t v; std::memcpy ( &v, p, 4 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr64 ( const unsigned char *p ) noexcept { std::uint64_t v; std::memcpy ( &v, p, 8 ); return v; }
 
-static inline std::uint64_t wyr64_2 ( const unsigned char *p ) noexcept { return ( wyr32 ( p ) << 32 ) | wyr32 ( p + 4 ); }
+[[ nodiscard ]] static inline std::uint64_t wyr64_2 ( const unsigned char *p ) noexcept { return ( wyr32 ( p ) << 32 ) | wyr32 ( p + 4 ); }
 }
 
-static inline std::uint64_t wyhash ( const void *key, std::uint64_t len, std::uint64_t seed ) noexcept {
+[[ nodiscard ]] static inline std::uint64_t wyhash ( const void *key, std::uint64_t len, std::uint64_t seed ) noexcept {
     const unsigned char *p = ( const unsigned char* ) key; std::uint64_t i;
     for ( i = 0; i + 32 <= len; i += 32, p += 32 )
         seed = detail::wymum ( seed ^ detail::wyp0, detail::wymum ( detail::wyr64 ( p ) ^ detail::wyp1, detail::wyr64 ( p + 8 ) ^ detail::wyp2 ) ^ detail::wymum ( detail::wyr64 ( p + 16 ) ^ detail::wyp3, detail::wyr64 ( p + 24 ) ^ detail::wyp4 ) );
@@ -146,15 +146,15 @@ static inline std::uint64_t wyhash ( const void *key, std::uint64_t len, std::ui
     return detail::wymum ( seed, len^detail::wyp5 );
 }
 
-static inline std::uint64_t wyhash64 ( std::uint64_t a_, std::uint64_t b_ ) noexcept {
+[[ nodiscard ]] static inline std::uint64_t wyhash64 ( std::uint64_t a_, std::uint64_t b_ ) noexcept {
     return detail::wymum ( detail::wymum ( a_ ^ detail::wyp0, b_ ^ detail::wyp1 ), detail::wyp2 );
 }
-static inline std::uint64_t wyrand ( std::uint64_t *s_ ) noexcept {
+[[ nodiscard ]] static inline std::uint64_t wyrand ( std::uint64_t *s_ ) noexcept {
     *s_ += detail::wyp0;
     return detail::wymum ( *s_ ^ detail::wyp1, *s_ );
 }
 
-// static inline double wyrandu01(std::uint64_t *seed){ const double wynorm=1.0/(1ull<<52); return (wyrand(seed)&0x000fffffffffffffull)*wynorm; }
+// [[ nodiscard ]] static inline double wyrandu01(std::uint64_t *seed){ const double wynorm=1.0/(1ull<<52); return (wyrand(seed)&0x000fffffffffffffull)*wynorm; }
 
 }
 
