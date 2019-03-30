@@ -97,16 +97,16 @@ constexpr std::uint64_t wyp3 = 0x589965cc75374cc3ull, wyp4 = 0x1d8e4e27c47d124fu
     #endif
 }
 
-[[ nodiscard ]] static inline std::uint64_t wyr08 ( const unsigned char *p ) noexcept { unsigned char v; std::memcpy ( &v, p, 1 ); return v; }
-[[ nodiscard ]] static inline std::uint64_t wyr16 ( const unsigned char *p ) noexcept { unsigned short v; std::memcpy ( &v, p, 2 ); return v; }
-[[ nodiscard ]] static inline std::uint64_t wyr32 ( const unsigned char *p ) noexcept { std::uint32_t v; std::memcpy ( &v, p, 4 ); return v; }
-[[ nodiscard ]] static inline std::uint64_t wyr64 ( const unsigned char *p ) noexcept { std::uint64_t v; std::memcpy ( &v, p, 8 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr08 ( const std::uint8_t *p ) noexcept { std::uint8_t  v; std::memcpy ( &v, p, 1 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr16 ( const std::uint8_t *p ) noexcept { std::uint16_t v; std::memcpy ( &v, p, 2 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr32 ( const std::uint8_t *p ) noexcept { std::uint32_t v; std::memcpy ( &v, p, 4 ); return v; }
+[[ nodiscard ]] static inline std::uint64_t wyr64 ( const std::uint8_t *p ) noexcept { std::uint64_t v; std::memcpy ( &v, p, 8 ); return v; }
 
-[[ nodiscard ]] static inline std::uint64_t wyr64_2 ( const unsigned char *p ) noexcept { return ( wyr32 ( p ) << 32 ) | wyr32 ( p + 4 ); }
+[[ nodiscard ]] static inline std::uint64_t wyr64_2 ( const std::uint8_t *p ) noexcept { return ( wyr32 ( p ) << 32 ) | wyr32 ( p + 4 ); }
 }
 
-[[ nodiscard ]] static inline std::uint64_t wyhash ( const void *key, std::uint64_t len, std::uint64_t seed ) noexcept {
-    const unsigned char *p = ( const unsigned char* ) key; std::uint64_t i;
+[[ nodiscard ]] static inline std::uint64_t wyhash ( const void * key, std::uint64_t len, std::uint64_t seed ) noexcept {
+    const std::uint8_t *p = ( const std::uint8_t * ) key; std::uint64_t i;
     for ( i = 0; i + 32 <= len; i += 32, p += 32 )
         seed = detail::wymum ( seed ^ detail::wyp0, detail::wymum ( detail::wyr64 ( p ) ^ detail::wyp1, detail::wyr64 ( p + 8 ) ^ detail::wyp2 ) ^ detail::wymum ( detail::wyr64 ( p + 16 ) ^ detail::wyp3, detail::wyr64 ( p + 24 ) ^ detail::wyp4 ) );
     seed ^= detail::wyp0;
