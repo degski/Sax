@@ -68,7 +68,7 @@ using Rng = splitmix64;
 }
 // Returns first prime less than 2 ^ 64.
 [[ nodiscard ]] inline constexpr std::uint64_t fixed_seed ( ) noexcept {
-    return 18'446'744'073'709'551'557;
+    return 18'446'744'073'709'551'557u;
 }
 #endif
 #elif UINTPTR_MAX == 0xFFFF'FFFF
@@ -78,7 +78,7 @@ using Rng = jsf32;
 }
 // Returns first prime less than 2 ^ 32.
 [[ nodiscard ]] inline constexpr std::uint32_t fixed_seed ( ) noexcept {
-    return 4'294'967'291;
+    return 4'294'967'291u;
 }
 #else
 #error funny pointers detected
