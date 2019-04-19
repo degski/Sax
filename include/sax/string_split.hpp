@@ -76,7 +76,7 @@ template<typename CharT>
     return std::basic_string_view<CharT> ( x_ );
 }
 
-
+/*
 // From https://stackoverflow.com/a/40030044/646940
 
 template<typename Array, typename SizeT>
@@ -100,7 +100,7 @@ constexpr Array sort ( Array array_ ) {
     sort_impl ( sorted, typename Array::size_type ( 0 ), Array::size ( ) );
     return sorted;
 }
-
+*/
 
 template <typename CharT, std::size_t Size>
 struct StringViewArray {
