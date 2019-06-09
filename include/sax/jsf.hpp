@@ -35,7 +35,7 @@
 /* Based on code published by Bob Jenkins in 2007, adapted for C++ */
 
 #include <cstdint>
-
+#include <utility>
 
 namespace sax {
 
@@ -61,26 +61,22 @@ template <typename itype, typename rtype,
         static constexpr result_type min ( ) { return 0; }
         static constexpr result_type max ( ) { return ~result_type ( 0 ); }
 
-        jsf ( const itype seed = itype ( 0xcafe5eed00000001ULL ) )
+        jsf ( itype seed = itype ( 0xcafe5eed00000001ULL ) )
             : a_ ( 0xf1ea5eed ), b_ ( seed ), c_ ( seed ), d_ ( seed ) {
-            for ( unsigned int i = 0; i < 20; ++i )
-                advance ( );
         }
 
-        jsf ( const itype seed1, const itype seed2, const itype seed3, const itype seed4 )
-            : a_ ( seed1 ), b_ ( seed2 ), c_ ( seed3 ), d_ ( seed4 | itype{1} ) {
+        jsf ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 )
+            : a_(std::move(seed4)), b_(std::move(seed3)), c_(std::move(seed2)), d_((std::move(seed1)|itype(1))) {
             for ( unsigned int i = 0; i < 20; ++i )
                 advance ( );
         }
 
         void seed ( const itype seed = itype ( 0xcafe5eed00000001ULL ) ) {
             a_ = 0xf1ea5eed; b_ = seed; c_ = seed; d_ = seed;
-            for ( unsigned int i = 0; i < 20; ++i )
-                advance ( );
         }
 
-        void seed ( const itype seed1, const itype seed2, const itype seed3, const itype seed4 ) {
-            a_ = seed1; b_ = seed2; c_ = seed3; d_ = seed4 | itype{1};
+        void seed ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 ) {
+            a_ = std::move ( seed4 ); b_ = std::move ( seed3 ); c_ = std::move ( seed2 ); d_ = ( std::move ( seed1 ) | itype{1} );
             for ( unsigned int i = 0; i < 20; ++i )
                 advance ( );
         }

@@ -7,6 +7,9 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2018 Melissa E. O'Neill
+ * Copyright (c) 2019 degski
+ *    - changed constructors slightly;
+ *    - added seed functions;
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -32,7 +35,9 @@
  */
 
 #include <cstdint>
+#include <utility>
 
+namespace sax {
 namespace sfc_detail {
 
 template <typename itype, typename rtype,
@@ -57,16 +62,26 @@ public:
     static constexpr result_type max() { return ~ result_type(0); }
 
     sfc(itype seed = itype(0xcafef00dbeef5eedULL))
-        : sfc(seed, seed, seed)
+        : a_ ( seed ), b_ ( seed ), c_ ( seed ), d_ ( 1ULL )
     {
         // Nothing (else) to do
     }
 
-    sfc(itype seed1, itype seed2, itype seed3)
-        : a_(seed3), b_(seed2), c_(seed1), d_(itype(1))
+    sfc(itype && seed1, itype && seed2, itype && seed3, itype && seed4)
+        : a_(std::move(seed4)), b_(std::move(seed3)), c_(std::move(seed2)), d_((std::move(seed1)|itype(1)))
     {
-        for (unsigned int i=0; i < 12; ++i)
+        for (unsigned int i=0; i < 20; ++i)
             advance();
+    }
+
+    void seed ( const itype seed = itype ( 0xcafef00dbeef5eedULL ) ) {
+        a_ = seed; b_ = seed; c_ = seed; d_ = 1ULL;
+    }
+
+    void seed ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 ) {
+        a_ = std::move ( seed4 ); b_ = std::move ( seed3 ); c_ = std::move ( seed2 ); d_ = ( std::move ( seed1 ) | itype{1} );
+        for ( unsigned int i = 0; i < 20; ++i )
+            advance ( );
     }
 
     void advance()
@@ -141,5 +156,7 @@ using sfc16 = sfc16d;
 // Not by Chris
 
 using sfc8 = sfc_detail::sfc<uint8_t, uint8_t, 3, 2, 1>;
+
+} // namespace sax
 
 #endif // SFC_HPP_INCLUDED
