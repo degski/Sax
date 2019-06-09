@@ -11,6 +11,7 @@
  * Copyright (c) 2019 degski
  *         - added namespace sax;
  *         - added seed () member function;
+ *         - added seeding of the whole state (non-standard, should use seed_seq);
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -62,6 +63,12 @@ template <typename itype, typename rtype,
 
         jsf ( const itype seed = itype ( 0xcafe5eed00000001ULL ) )
             : a_ ( 0xf1ea5eed ), b_ ( seed ), c_ ( seed ), d_ ( seed ) {
+            for ( unsigned int i = 0; i < 20; ++i )
+                advance ( );
+        }
+
+        jsf ( const itype seed1, const itype seed2, const itype seed3, const itype seed4 )
+            : a_ ( seed1 ), b_ ( seed2 ), c_ ( seed3 ), d_ ( seed4 ) {
             for ( unsigned int i = 0; i < 20; ++i )
                 advance ( );
         }
