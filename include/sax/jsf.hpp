@@ -72,6 +72,12 @@ template <typename itype, typename rtype,
                 advance ( );
         }
 
+        void seed ( const itype seed1, const itype seed2, const itype seed3, const itype seed4 ) {
+            a_ = seed1; b_ = seed2; c_ = seed3; d_ = seed4;
+            for ( unsigned int i = 0; i < 20; ++i )
+                advance ( );
+        }
+
         void advance ( ) {
             itype e = a_ - rotate ( b_, p );
             a_ = b_ ^ rotate ( c_, q );
