@@ -68,7 +68,7 @@ template <typename itype, typename rtype,
         }
 
         jsf ( const itype seed1, const itype seed2, const itype seed3, const itype seed4 )
-            : a_ ( seed1 ), b_ ( seed2 ), c_ ( seed3 ), d_ ( seed4 ) {
+            : a_ ( seed1 ), b_ ( seed2 ), c_ ( seed3 ), d_ ( seed4 | itype{1} ) {
             for ( unsigned int i = 0; i < 20; ++i )
                 advance ( );
         }
@@ -80,7 +80,7 @@ template <typename itype, typename rtype,
         }
 
         void seed ( const itype seed1, const itype seed2, const itype seed3, const itype seed4 ) {
-            a_ = seed1; b_ = seed2; c_ = seed3; d_ = seed4;
+            a_ = seed1; b_ = seed2; c_ = seed3; d_ = seed4 | itype{1};
             for ( unsigned int i = 0; i < 20; ++i )
                 advance ( );
         }
