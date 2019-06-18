@@ -39,6 +39,7 @@
 
 namespace sax {
 
+namespace detail {
 // For use with a std::variant (or drop-in) and std::visit using lambda's as
 // per the example #4 https://en.cppreference.com/w/cpp/utility/variant/visit
 template<typename ... Ts>
@@ -47,6 +48,14 @@ struct overloaded : Ts... {
 };
 template<typename ... Ts>
 overloaded ( Ts ... )->overloaded<Ts ...>;
+} // namespace detail.
+
+
+// Applying the above overload.
+template<typename Variant, typename ... Matchers>
+auto match ( Variant && variant, Matchers && ... matchers ) {
+  return std::visit ( detail::overloaded { std::forward<Matchers> ( matchers) ... }, std::forward<Variant> ( variant ) );
+}
 
 
 template<typename Container>
