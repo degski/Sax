@@ -121,7 +121,6 @@ struct pair {
     ValueType second;
 };
 
-
 // https://www.fluentcpp.com/2019/03/05/for_each_arg-applying-a-function-to-each-argument-of-a-function-in-cpp/
 
 template<typename F, typename ... Args>
@@ -155,6 +154,15 @@ using return_type = std::array<typename return_type_helper<D, Types...>::type, s
 template<class D = void, class... Types>
 constexpr details::return_type<D, Types...> make_array ( Types &&... t ) {
     return { std::forward<Types> ( t )... };
+}
+
+template<typename CharT, typename Traits, typename Allocator>
+void replace_all ( std::basic_string<CharT, Traits, Allocator> & input_, std::basic_string<CharT, Traits, Allocator> const & from_, std::basic_string<CharT, Traits, Allocator> const & to_ ) noexcept {
+    std::size_t pos = 0u;
+    while ( std::basic_string<CharT, Traits, Allocator>::npos != ( pos = input_.find ( from_, pos ) ) ) {
+        input_.replace ( pos, from_.length ( ), to_ );
+        pos += to_.length ( );
+    }
 }
 
 }
