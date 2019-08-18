@@ -150,16 +150,39 @@ template<typename CharT, typename Array>
 namespace sax {
 
 template<typename CharT, typename ... Delimiters>
-[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string<CharT> const & string_, Delimiters const ... delimiters_ ) {
-    if ( string_.empty ( ) )
+[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string_view<CharT> const & string_view_, Delimiters const ... delimiters_ ) {
+    if (string_view_.empty ( ) )
         return { };
-    std::basic_string_view<CharT> string_view ( string_ );
+    std::basic_string_view<CharT> string_view{ string_view_ };
     using sva = detail::StringViewArray<CharT, sizeof ... ( Delimiters )>;
     const sva params ( delimiters_ ... );
     std::vector<std::basic_string_view<CharT>> string_view_vector;
     string_view_vector.reserve ( 4 ); // Avoid small size re-allocating, 0 > 1 > 2 > 3 > 4 > 6, now 4 > 6 > 9 etc.
     while ( true ) {
         while ( const auto match_length = detail::any_matches ( string_view, params ) )
+            string_view.remove_prefix ( match_length );
+        if ( string_view.empty ( ) )
+            break;
+        const auto match_start = string_view.data ( );
+        do {
+            string_view.remove_prefix ( 1 );
+        } while ( string_view.size ( ) and not ( detail::any_matches ( string_view, params ) ) );
+        string_view_vector.emplace_back ( match_start, string_view.data ( ) - match_start );
+    }
+    return string_view_vector;
+}
+
+template<typename CharT, typename ... Delimiters>
+[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string<CharT> const & string_, Delimiters const ... delimiters_ ) {
+    if ( string_.empty ( ) )
+        return { };
+    std::basic_string_view<CharT> string_view{ string_ };
+    using sva = detail::StringViewArray<CharT, sizeof ... ( Delimiters )>;
+    const sva params ( delimiters_ ... );
+    std::vector<std::basic_string_view<CharT>> string_view_vector;
+    string_view_vector.reserve ( 4 ); // Avoid small size re-allocating, 0 > 1 > 2 > 3 > 4 > 6, now 4 > 6 > 9 etc.
+    while (true) {
+        while (const auto match_length = detail::any_matches ( string_view, params) )
             string_view.remove_prefix ( match_length );
         if ( string_view.empty ( ) )
             break;
