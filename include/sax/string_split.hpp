@@ -144,6 +144,27 @@ template<typename CharT, typename Array>
     return match_length;
 }
 
+// Do the work.
+template<typename CharT, typename ... Delimiters>
+[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string_view<CharT> & string_view_, Delimiters const ... delimiters_ ) {
+    using sva = detail::StringViewArray<CharT, sizeof ... ( Delimiters )>;
+    const sva params ( delimiters_ ... );
+    std::vector<std::basic_string_view<CharT>> string_view_vector;
+    string_view_vector.reserve ( 4 ); // Avoid small size re-allocating, 0 > 1 > 2 > 3 > 4 > 6, now 4 > 6 > 9 etc.
+    while ( true ) {
+        while ( const auto match_length = any_matches ( string_view_, params ) )
+            string_view_.remove_prefix ( match_length );
+        if ( string_view_.empty ( ) )
+            break;
+        const auto match_start = string_view_.data ( );
+        do {
+            string_view_.remove_prefix ( 1 );
+        } while ( string_view_.size ( ) and not ( any_matches (string_view_, params ) ) );
+        string_view_vector.emplace_back ( match_start, string_view_.data ( ) - match_start );
+    }
+    return string_view_vector;
+}
+
 } // namespace sax::detail
 
 
@@ -154,22 +175,7 @@ template<typename CharT, typename ... Delimiters>
     if (string_view_.empty ( ) )
         return { };
     std::basic_string_view<CharT> string_view{ string_view_ };
-    using sva = detail::StringViewArray<CharT, sizeof ... ( Delimiters )>;
-    const sva params ( delimiters_ ... );
-    std::vector<std::basic_string_view<CharT>> string_view_vector;
-    string_view_vector.reserve ( 4 ); // Avoid small size re-allocating, 0 > 1 > 2 > 3 > 4 > 6, now 4 > 6 > 9 etc.
-    while ( true ) {
-        while ( const auto match_length = detail::any_matches ( string_view, params ) )
-            string_view.remove_prefix ( match_length );
-        if ( string_view.empty ( ) )
-            break;
-        const auto match_start = string_view.data ( );
-        do {
-            string_view.remove_prefix ( 1 );
-        } while ( string_view.size ( ) and not ( detail::any_matches ( string_view, params ) ) );
-        string_view_vector.emplace_back ( match_start, string_view.data ( ) - match_start );
-    }
-    return string_view_vector;
+    return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ ) ... );
 }
 
 template<typename CharT, typename ... Delimiters>
@@ -177,22 +183,7 @@ template<typename CharT, typename ... Delimiters>
     if ( string_.empty ( ) )
         return { };
     std::basic_string_view<CharT> string_view{ string_ };
-    using sva = detail::StringViewArray<CharT, sizeof ... ( Delimiters )>;
-    const sva params ( delimiters_ ... );
-    std::vector<std::basic_string_view<CharT>> string_view_vector;
-    string_view_vector.reserve ( 4 ); // Avoid small size re-allocating, 0 > 1 > 2 > 3 > 4 > 6, now 4 > 6 > 9 etc.
-    while (true) {
-        while (const auto match_length = detail::any_matches ( string_view, params) )
-            string_view.remove_prefix ( match_length );
-        if ( string_view.empty ( ) )
-            break;
-        const auto match_start = string_view.data ( );
-        do {
-            string_view.remove_prefix ( 1 );
-        } while ( string_view.size ( ) and not ( detail::any_matches ( string_view, params ) ) );
-        string_view_vector.emplace_back ( match_start, string_view.data ( ) - match_start );
-    }
-    return string_view_vector;
+    return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ ) ... );
 }
 
 } // namespace sax
