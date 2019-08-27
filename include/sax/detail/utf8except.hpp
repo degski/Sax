@@ -1,6 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 // utf8except.hpp -- Copyright (C) by Giovanni Dicanio
+// Copyright (c) 2019 degski
+//      27.08.2019: changed header extension name and location.
+//      27.08.2019: #pragma once
 //
 // This header file defines a C++ exception class that represents
 // UTF-8 encoding conversion errors.
@@ -10,18 +13,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GIOVANNI_DICANIO_WIN32_UTF8EXCEPT_HPP_
-#define GIOVANNI_DICANIO_WIN32_UTF8EXCEPT_HPP_
-
-
-//
-// Includes
-//
+#pragma once
 
 #include <stdint.h>   // for uint32_t
 #include <stdexcept>  // for std::runtime_error
 #include <string>     // for std::string
-
 
 namespace sax 
 {

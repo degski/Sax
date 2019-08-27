@@ -1,12 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 // utf8conv.hpp -- Copyright (C) by Giovanni Dicanio
+// Copyright (c) 2019 degski
+//      27.08.2019: changed header extension name and location.
+//      27.08.2019: added overload for std::string_view.
+//      27.08.2019: #pragma once
 //
 // This header file defines a couple of C++ functions to convert between
 // UTF-8 and UTF-16 Unicode encodings.
 //
 // Function implementations are inline, so this module can be simply reused in
-// C++ projects just by adding to your project this header file and the associated 
+// C++ projects just by adding to your project this header file and the associated
 // "utf8except.h" header defining the UTF-8 conversion exception class.
 // Note that #including this header automatically #includes "utf8except.h".
 //
@@ -25,7 +29,7 @@
 // and WideCharToMultiByte in particular), this portion of code is already
 // platform-specific.
 //
-// This code is based on my MSDN Magazine article published 
+// This code is based on my MSDN Magazine article published
 // on the 2016 September issue:
 //
 // "C++ - Unicode Encoding Conversions with STL Strings and Win32 APIs"
@@ -34,35 +38,42 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef GIOVANNI_DICANIO_WIN32_UTF8CONV_HPP_
-#define GIOVANNI_DICANIO_WIN32_UTF8CONV_HPP_
-
-
-//
-// Includes
-//
+#pragma once
 
 #include <crtdbg.h>      // For _ASSERTE()
-#include <Windows.h>     // Win32 Platform SDK main header        
+#include <Windows.h>     // Win32 Platform SDK main header
 
 #include <limits>        // For std::numeric_limits
 #include <stdexcept>     // For std::overflow_error
 #include <string>        // For std::string and std::wstring
+#include <string_view>
+#include <type_traits>
 
 #include "detail/utf8except.hpp"  // Custom exception class for UTF-8 conversion errors
 
+namespace sax {
 
-namespace sax
-{
-
+namespace detail {
+    template<typename T>
+    using is_basic_string = std::is_base_of<std::basic_string<typename T::value_type>, T>;
+    template<typename T>
+    using is_basic_string_view = std::is_base_of<std::basic_string_view<typename T::value_type>, T>;
+    template<typename T>
+    using is_basic_string_like = std::disjunction<is_basic_string<T>, is_basic_string_view<T>>;
+    template<typename T>
+    using is_string_like = std::conjunction<is_basic_string_like<T>, std::is_same<typename T::value_type, char>>;
+    template<typename T>
+    using is_wstring_like = std::conjunction<is_basic_string_like<T>, std::is_same<typename T::value_type, wchar_t>>;
+}
 
 // Convert form UTF-8 to UTF-16.
 // Throws Utf8ConversionException on conversion errors
 // (e.g. invalid UTF-8 sequence found in input string).
-inline std::wstring utf8_to_utf16(std::string const & utf8)
+template<typename T, typename = std::enable_if_t<detail::is_string_like<T>::value>>
+inline std::wstring utf8_to_utf16(T const & utf8)
 {
     // Result of the conversion
-    std::wstring utf16; 
+    std::wstring utf16;
 
     // First, handle the special case of empty input string
     if (utf8.empty())
@@ -75,12 +86,12 @@ inline std::wstring utf8_to_utf16(std::string const & utf8)
     constexpr DWORD kFlags = MB_ERR_INVALID_CHARS;
 
     // Safely cast the length of the source UTF-8 string (expressed in chars)
-    // from size_t (returned by std::string::length()) to int 
+    // from size_t (returned by std::string::length()) to int
     // for the MultiByteToWideChar API.
-    // If the size_t value is too big to be stored into an int, 
-    // throw an exception to prevent conversion errors like huge size_t values 
+    // If the size_t value is too big to be stored into an int,
+    // throw an exception to prevent conversion errors like huge size_t values
     // converted to *negative* integers.
-    if (utf8.length() > static_cast<size_t>((std::numeric_limits<int>::max)())) 
+    if (utf8.length() > static_cast<size_t>((std::numeric_limits<int>::max)()))
     {
         throw std::overflow_error(
             "Input string too long: size_t-length doesn't fit into int.");
@@ -101,8 +112,8 @@ inline std::wstring utf8_to_utf16(std::string const & utf8)
         // Conversion error: capture error code and throw
         const DWORD error = ::GetLastError();
         throw Utf8ConversionException(
-            error == ERROR_NO_UNICODE_TRANSLATION ? 
-            "Invalid UTF-8 sequence found in input string." 
+            error == ERROR_NO_UNICODE_TRANSLATION ?
+            "Invalid UTF-8 sequence found in input string."
             :
             "Cannot get result string length when converting " \
             "from UTF-8 to UTF-16 (MultiByteToWideChar failed).",
@@ -120,7 +131,7 @@ inline std::wstring utf8_to_utf16(std::string const & utf8)
         utf8.data(),   // source UTF-8 string pointer
         utf8Length,    // length of source UTF-8 string, in chars
         &utf16[0],     // pointer to destination buffer
-        utf16Length    // size of destination buffer, in wchar_ts           
+        utf16Length    // size of destination buffer, in wchar_ts
     );
     if (result == 0)
     {
@@ -140,10 +151,11 @@ inline std::wstring utf8_to_utf16(std::string const & utf8)
 }
 
 
-// Convert form UTF-16 to UTF-8.
+// Convert from UTF-16 to UTF-8.
 // Throws Utf8ConversionException on conversion errors
 // (e.g. invalid UTF-16 sequence found in input string).
-inline std::string utf16_to_utf8(std::wstring const & utf16)
+template<typename T, typename = std::enable_if_t<detail::is_wstring_like<T>::value>>
+inline std::string utf16_to_utf8(T const & utf16)
 {
     // Result of the conversion
     std::string utf8;
@@ -159,10 +171,10 @@ inline std::string utf16_to_utf8(std::wstring const & utf16)
     constexpr DWORD kFlags = WC_ERR_INVALID_CHARS;
 
     // Safely cast the length of the source UTF-16 string (expressed in wchar_ts)
-    // from size_t (returned by std::wstring::length()) to int 
+    // from size_t (returned by std::wstring::length()) to int
     // for the WideCharToMultiByte API.
-    // If the size_t value is too big to be stored into an int, 
-    // throw an exception to prevent conversion errors like huge size_t values 
+    // If the size_t value is too big to be stored into an int,
+    // throw an exception to prevent conversion errors like huge size_t values
     // converted to *negative* integers.
     if (utf16.length() > static_cast<size_t>((std::numeric_limits<int>::max)()))
     {
@@ -225,8 +237,4 @@ inline std::string utf16_to_utf8(std::wstring const & utf16)
     return utf8;
 }
 
-
 } // namespace sax
-
-
-#endif // GIOVANNI_DICANIO_WIN32_UTF8CONV_HPP_
