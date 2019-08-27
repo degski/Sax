@@ -55,15 +55,9 @@ namespace sax {
 
 namespace detail {
     template<typename T>
-    using is_basic_string = std::is_base_of<std::basic_string<typename T::value_type>, T>;
+    using is_string_like = std::disjunction<std::is_same<T, std::string>, std::is_same<T, std::string_view>>;
     template<typename T>
-    using is_basic_string_view = std::is_base_of<std::basic_string_view<typename T::value_type>, T>;
-    template<typename T>
-    using is_basic_string_like = std::disjunction<is_basic_string<T>, is_basic_string_view<T>>;
-    template<typename T>
-    using is_string_like = std::conjunction<is_basic_string_like<T>, std::is_same<typename T::value_type, char>>;
-    template<typename T>
-    using is_wstring_like = std::conjunction<is_basic_string_like<T>, std::is_same<typename T::value_type, wchar_t>>;
+    using is_wstring_like = std::disjunction<std::is_same<T, std::wstring>, std::is_same<T, std::wstring_view>>;
 }
 
 // Convert form UTF-8 to UTF-16.
