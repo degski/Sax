@@ -102,7 +102,3 @@ inline Utf8ConversionException::ConversionType Utf8ConversionException::directio
 
 
 } // namespace sax
-
-
-#endif // GIOVANNI_DICANIO_WIN32_UTF8EXCEPT_HPP_
-
