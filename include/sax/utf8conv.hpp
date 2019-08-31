@@ -1,5 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
+// License: MIT
+//
 // utf8conv.hpp -- Copyright (C) by Giovanni Dicanio
 // Copyright (c) 2019 degski
 //      27.08.2019: changed header extension name and location.
