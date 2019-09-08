@@ -109,8 +109,9 @@ constexpr T sumMToN ( const T m_, const T n_ ) noexcept {
 }
 
 // Pointer Alignment.
-inline std::uint32_t pointer_alignment ( const void * p_ ) noexcept {
-    return ( std::uint32_t ) ( ( std::uintptr_t ) p_ & ( std::uintptr_t ) - ( ( std::intptr_t ) p_ ) );
+[[nodiscard]] inline constexpr std::size_t pointer_alignment ( void const * ptr_ ) noexcept {
+        return static_cast<std::size_t> ( reinterpret_cast<std::uintptr_t> ( ptr_ ) &
+                                          static_cast<std::uintptr_t> ( -reinterpret_cast<std::intptr_t> ( ptr_ ) ) );
 }
 
 // Gray Coding.
@@ -119,14 +120,14 @@ constexpr T dec2gray ( const T i_ ) noexcept {
     return i_ ^ ( i_ >> 1 );
 }
 
-constexpr std::uint8_t gray2dec ( std::uint8_t g_ ) noexcept {
+inline constexpr std::uint8_t gray2dec ( std::uint8_t g_ ) noexcept {
     g_ ^= g_ >> 4;
     g_ ^= g_ >> 2;
     g_ ^= g_ >> 1;
     return g_;
 }
 
-constexpr std::uint16_t gray2dec ( std::uint16_t g_ ) noexcept {
+inline constexpr std::uint16_t gray2dec ( std::uint16_t g_ ) noexcept {
     g_ ^= g_ >> 8;
     g_ ^= g_ >> 4;
     g_ ^= g_ >> 2;
@@ -134,7 +135,7 @@ constexpr std::uint16_t gray2dec ( std::uint16_t g_ ) noexcept {
     return g_;
 }
 
-constexpr std::uint32_t gray2dec ( std::uint32_t g_ ) noexcept {
+inline constexpr std::uint32_t gray2dec ( std::uint32_t g_ ) noexcept {
     g_ ^= g_ >> 16;
     g_ ^= g_ >> 8;
     g_ ^= g_ >> 4;
@@ -143,7 +144,7 @@ constexpr std::uint32_t gray2dec ( std::uint32_t g_ ) noexcept {
     return g_;
 }
 
-constexpr std::uint64_t gray2dec ( std::uint64_t g_ ) noexcept {
+inline constexpr std::uint64_t gray2dec ( std::uint64_t g_ ) noexcept {
     g_ ^= g_ >> 32;
     g_ ^= g_ >> 16;
     g_ ^= g_ >> 8;
@@ -153,37 +154,36 @@ constexpr std::uint64_t gray2dec ( std::uint64_t g_ ) noexcept {
     return g_;
 }
 
-
 // FNV1a c++11 constexpr compile time hash functions, 32 and 64 bit
 // str should be a null terminated string literal, value should be left out
 // e.g hash_32_fnv1a_const("example")
 // code license: public domain or equivalent
 // post: https://notes.underscorediscovery.com/constexpr-fnv1a/
-constexpr std::uint32_t hash_32_fnv1a_const ( const char* const str, const std::uint32_t value = 0x811c9dc5 ) noexcept {
+inline constexpr std::uint32_t hash_32_fnv1a_const ( const char* const str, const std::uint32_t value = 0x811c9dc5 ) noexcept {
     return ( str [ 0 ] == '\0' ) ? value : hash_32_fnv1a_const ( &str [ 1 ], ( value ^ std::uint32_t ( str [ 0 ] ) ) * 0x1000193 );
 }
 
-constexpr std::uint64_t hash_64_fnv1a_const ( const char* const str, const std::uint64_t value = 0xcbf29ce484222325 ) noexcept {
+inline constexpr std::uint64_t hash_64_fnv1a_const ( const char* const str, const std::uint64_t value = 0xcbf29ce484222325 ) noexcept {
     return ( str [ 0 ] == '\0' ) ? value : hash_64_fnv1a_const ( &str [ 1 ], ( value ^ std::uint64_t ( str [ 0 ] ) ) * 0x100000001b3 );
 }
 
-constexpr std::uint32_t hash_32_fnv1a_const ( const std::string & str_, const std::uint32_t value_ = 0x811c9dc5 ) noexcept {
+inline constexpr std::uint32_t hash_32_fnv1a_const ( const std::string & str_, const std::uint32_t value_ = 0x811c9dc5 ) noexcept {
     return hash_32_fnv1a_const ( str_.c_str ( ), value_ );
 }
 
-constexpr std::uint64_t hash_64_fnv1a_const ( const std::string & str_, const std::uint64_t value_ = 0xcbf29ce484222325 ) noexcept {
+inline constexpr std::uint64_t hash_64_fnv1a_const ( const std::string & str_, const std::uint64_t value_ = 0xcbf29ce484222325 ) noexcept {
     return hash_64_fnv1a_const ( str_.c_str ( ), value_ );
 }
 
 // Integer Hashing.
-constexpr std::uint32_t hash ( std::uint32_t x ) noexcept {
+inline constexpr std::uint32_t hash ( std::uint32_t x ) noexcept {
     x = ( ( x >> 16 ) ^ x ) * 0X45D9F3B;
     x = ( ( x >> 16 ) ^ x ) * 0X45D9F3B;
     x = ( ( x >> 16 ) ^ x );
     return x;
 }
 
-constexpr std::uint32_t unhash ( std::uint32_t x ) noexcept {
+inline constexpr std::uint32_t unhash ( std::uint32_t x ) noexcept {
     x = ( ( x >> 16 ) ^ x ) * 0X119DE1F3;
     x = ( ( x >> 16 ) ^ x ) * 0X119DE1F3;
     x = ( ( x >> 16 ) ^ x );
@@ -193,14 +193,14 @@ constexpr std::uint32_t unhash ( std::uint32_t x ) noexcept {
 // 0x0CF3FD1B9997F637 0xAFC1530680179F87 - 0.0033298184
 // 0xD6E8FEB86659FD93 0xCFEE444D8B59A89B - 0.0033215807
 
-constexpr std::uint64_t hash ( std::uint64_t x ) noexcept {
+inline constexpr std::uint64_t hash ( std::uint64_t x ) noexcept {
     x = ( ( x >> 32 ) ^ x ) * 0xD6E8FEB86659FD93;
     x = ( ( x >> 32 ) ^ x ) * 0xD6E8FEB86659FD93;
     x = ( ( x >> 32 ) ^ x );
     return x;
 }
 
-constexpr std::uint64_t unhash ( std::uint64_t x ) noexcept {
+inline constexpr std::uint64_t unhash ( std::uint64_t x ) noexcept {
     x = ( ( x >> 32 ) ^ x ) * 0xCFEE444D8B59A89B;
     x = ( ( x >> 32 ) ^ x ) * 0xCFEE444D8B59A89B;
     x = ( ( x >> 32 ) ^ x );
@@ -236,7 +236,7 @@ void hash_combine ( std::uint64_t & seed_, const T & v_ ) noexcept {
 }
 
 // An invertible function used to mix the bits, borrowed from murmurhash.
-constexpr std::uint64_t fmix64 ( std::uint64_t k ) noexcept {
+inline constexpr std::uint64_t fmix64 ( std::uint64_t k ) noexcept {
     k ^= k >> 33;
     k *= 0xFF51AFD7ED558CCD;
     k ^= k >> 33;
