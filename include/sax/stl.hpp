@@ -23,9 +23,13 @@
 
 #pragma once
 
+#ifdef _WIN32
+#include <cstring>
+#endif
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+
 
 #include <algorithm>
 #include <future>
@@ -165,5 +169,10 @@ void replace_all ( std::basic_string<CharT, Traits, Allocator> & input_, std::ba
     }
 }
 
+#ifdef _WIN32
+[[maybe_unused]] inline void * memccpy ( void * dest, void const *src, int c, std::size_t count) noexcept {
+    return _memccpy (dest, src, c, count );
 }
+#endif
 
+}
