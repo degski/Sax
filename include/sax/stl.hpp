@@ -175,4 +175,24 @@ void replace_all ( std::basic_string<CharT, Traits, Allocator> & input_, std::ba
 }
 #endif
 
+// https://stackoverflow.com/a/18405291/646940
+
+// My work around when I have a container that needs to know if the contained
+// object can be safely copied, comparedand ordered is to specialize for
+// std::vector on a custom traits class, and fall back on the value of the
+// custom traits class on the contained type.This is a patchwork solution, and
+// quite intrusive. And similar for < and ==. I can add more specializations
+// when I run into more container-types that should really forward their
+// properties down to their data, or I could write a fancier SFINAE container-
+// test and traits and extract the underlying value-type and dispatch the
+// question to the test on the value-type.
+
+template<template<typename>class test, typename T>
+struct smart_test : test<T> {};
+template<template<typename>class test, typename T, typename A>
+struct smart_test<test, std::vector<T, A>> : smart_test<T> {}
+
+template<typename T>
+using smart_is_copy_constructible = smart_test<std::is_copy_constructible, T >;
+
 }
