@@ -195,4 +195,65 @@ struct smart_test<test, std::vector<T, A>> : smart_test<T> {}
 template<typename T>
 using smart_is_copy_constructible = smart_test<std::is_copy_constructible, T >;
 
+// https://stackoverflow.com/a/481333/646940
+
+template<typename T>
+inline T median_of_five (T* p) noexcept {
+    if (p[0] > p[1])
+        std::swap (p[0], p[1]);
+    if (p[2] > p[3])
+        std::swap (p[2], p[3]);
+    if (p[2] < p[0]) {
+        std::swap (p[1], p[3]);
+        p[2] = p[0];
+    }
+    p[0] = p[4];
+    if (p[0] > p[1])
+        std::swap (p[0], p[1]);
+    if (p[0] < p[2]) {
+        std::swap (p[1], p[3]);
+        p[0] = p[2];
+    }
+    return std::min (p[3], p[0]);
 }
+
+// https://stackoverflow.com/a/2117018/646940
+
+template<typename T>
+inline T median_of_five2 (T* p) noexcept {
+    return p[1] < p[0] ? p[3] < p[2] ? p[1] < p[3] ? p[0] < p[4] ? p[0] < p[3] ? p[4] < p[3] ? p[4] : p[3]
+        : p[2] < p[0] ? p[2] : p[0]
+        : p[4] < p[3] ? p[0] < p[3] ? p[0] : p[3]
+        : p[2] < p[4] ? p[2] : p[4]
+        : p[2] < p[4] ? p[1] < p[2] ? p[0] < p[2] ? p[0] : p[2]
+        : p[4] < p[1] ? p[4] : p[1]
+        : p[1] < p[4] ? p[0] < p[4] ? p[0] : p[4]
+        : p[2] < p[1] ? p[2] : p[1]
+        : p[1] < p[2] ? p[0] < p[4] ? p[0] < p[2] ? p[4] < p[2] ? p[4] : p[2]
+        : p[3] < p[0] ? p[3] : p[0]
+        : p[4] < p[2] ? p[0] < p[2] ? p[0] : p[2]
+        : p[3] < p[4] ? p[3] : p[4]
+        : p[3] < p[4] ? p[1] < p[3] ? p[0] < p[3] ? p[0] : p[3]
+        : p[4] < p[1] ? p[4] : p[1]
+        : p[1] < p[4] ? p[0] < p[4] ? p[0] : p[4]
+        : p[3] < p[1] ? p[3] : p[1]
+        : p[3] < p[2] ? p[0] < p[3] ? p[1] < p[4] ? p[1] < p[3] ? p[4] < p[3] ? p[4] : p[3]
+        : p[2] < p[1] ? p[2] : p[1]
+        : p[4] < p[3] ? p[1] < p[3] ? p[1] : p[3]
+        : p[2] < p[4] ? p[2] : p[4]
+        : p[2] < p[4] ? p[0] < p[2] ? p[1] < p[2] ? p[1] : p[2]
+        : p[4] < p[0] ? p[4] : p[0]
+        : p[0] < p[4] ? p[1] < p[4] ? p[1] : p[4]
+        : p[2] < p[0] ? p[2] : p[0]
+        : p[0] < p[2] ? p[1] < p[4] ? p[1] < p[2] ? p[4] < p[2] ? p[4] : p[2]
+        : p[3] < p[1] ? p[3] : p[1]
+        : p[4] < p[2] ? p[1] < p[2] ? p[1] : p[2]
+        : p[3] < p[4] ? p[3] : p[4]
+        : p[3] < p[4] ? p[0] < p[3] ? p[1] < p[3] ? p[1] : p[3]
+        : p[4] < p[0] ? p[4] : p[0]
+        : p[0] < p[4] ? p[1] < p[4] ? p[1] : p[4]
+        : p[3] < p[0] ? p[3] : p[0];
+}
+
+}
+

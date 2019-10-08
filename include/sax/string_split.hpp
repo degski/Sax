@@ -21,10 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 // The basis for wrting this function was laid in:
 // https://codereview.stackexchange.com/a/214563/194172
-
 
 #pragma once
 
@@ -38,7 +36,6 @@
 #include <utility>
 #include <vector>
 
-
 namespace sax {
 
 template<typename T>
@@ -46,33 +43,40 @@ using is_string = std::is_base_of<std::basic_string<typename T::value_type>, T>;
 
 template<typename T, typename = is_string<T>>
 void print ( const T & string_ ) noexcept {
-    if constexpr ( std::is_same<T, std::string>::value ) { std::cout << '[' << string_ << ']'; }
-    else if constexpr ( std::is_same<T, std::wstring>::value ) { std::wcout << L'[' << string_ << L']'; }
+    if constexpr ( std::is_same<T, std::string>::value ) {
+        std::cout << '[' << string_ << ']';
+    }
+    else if constexpr ( std::is_same<T, std::wstring>::value ) {
+        std::wcout << L'[' << string_ << L']';
+    }
 }
 
 template<typename T, typename = is_string<T>>
 void print ( const std::vector<T> & string_vector_ ) noexcept {
     for ( const auto & string : string_vector_ ) {
-        if constexpr ( std::is_same<T, std::string>::value ) { std::cout << '<' << string << '>' << sp; }
-        else if constexpr ( std::is_same<T, std::wstring>::value ) { std::wcout << L'<' << string << L'>' << sp; }
+        if constexpr ( std::is_same<T, std::string>::value ) {
+            std::cout << '<' << string << '>' << sp;
+        }
+        else if constexpr ( std::is_same<T, std::wstring>::value ) {
+            std::wcout << L'<' << string << L'>' << sp;
+        }
     }
 }
 
 } // namespace sax
 
-
 namespace sax::detail {
 
 template<typename CharT>
-[[ nodiscard ]] constexpr std::basic_string_view<CharT> make_string_view ( std::basic_string_view<CharT> const & x_ ) noexcept {
+[[nodiscard]] constexpr std::basic_string_view<CharT> make_string_view ( std::basic_string_view<CharT> const & x_ ) noexcept {
     return x_; // guaranteed copy elision.
 }
 template<typename CharT>
-[[ nodiscard ]] constexpr std::basic_string_view<CharT> make_string_view ( CharT const & x_ ) noexcept {
+[[nodiscard]] constexpr std::basic_string_view<CharT> make_string_view ( CharT const & x_ ) noexcept {
     return std::basic_string_view<CharT> ( std::addressof ( x_ ), 1 );
 }
 template<typename CharT>
-[[ nodiscard ]] constexpr std::basic_string_view<CharT> make_string_view ( CharT const * const & x_ ) noexcept {
+[[nodiscard]] constexpr std::basic_string_view<CharT> make_string_view ( CharT const * const & x_ ) noexcept {
     return std::basic_string_view<CharT> ( x_ );
 }
 
@@ -102,53 +106,45 @@ constexpr Array sort ( Array array_ ) {
 }
 */
 
-template <typename CharT, std::size_t Size>
+template<typename CharT, std::size_t Size>
 struct StringViewArray {
     using size_type = typename std::basic_string_view<CharT>::size_type;
-    template<typename ... Delimiters>
-    constexpr StringViewArray ( Delimiters const & ... delimiters_ ) noexcept :
-        data { make_string_view<CharT> ( delimiters_ ) ... } { }
-    constexpr StringViewArray ( const StringViewArray & array_ ) noexcept :
-        data ( array_.data ) { }
-    constexpr std::basic_string_view<CharT> const & operator [ ] ( std::size_t i_ ) const noexcept {
-        return data [ i_ ];
-    }
-    constexpr static size_type size ( ) noexcept {
-        return static_cast<size_type> ( Size );
-    }
-    constexpr std::basic_string_view<CharT> const * begin ( ) const noexcept {
-        return data.data ( );
-    }
-    constexpr std::basic_string_view<CharT> const * end ( ) const noexcept {
-        return data.data ( ) + Size;
-    }
+    template<typename... Delimiters>
+    constexpr StringViewArray ( Delimiters const &... delimiters_ ) noexcept : data{ make_string_view<CharT> ( delimiters_ )... } {}
+    constexpr StringViewArray ( const StringViewArray & array_ ) noexcept : data ( array_.data ) {}
+    constexpr std::basic_string_view<CharT> const & operator[] ( std::size_t i_ ) const noexcept { return data[ i_ ]; }
+    constexpr static size_type size ( ) noexcept { return static_cast<size_type> ( Size ); }
+    constexpr std::basic_string_view<CharT> const * begin ( ) const noexcept { return data.data ( ); }
+    constexpr std::basic_string_view<CharT> const * end ( ) const noexcept { return data.data ( ) + Size; }
+
     private:
     std::array<std::basic_string_view<CharT>, Size> data;
 };
 
-
 template<typename CharT, typename SizeT>
-[[ nodiscard ]] constexpr SizeT match ( std::basic_string_view<CharT> const & s_, std::basic_string_view<CharT> const & x_ ) noexcept {
+[[nodiscard]] constexpr SizeT match ( std::basic_string_view<CharT> const & s_,
+                                      std::basic_string_view<CharT> const & x_ ) noexcept {
     if ( s_.size ( ) >= x_.size ( ) and s_.compare ( 0, x_.size ( ), x_ ) == 0 )
         return x_.size ( );
     return 0;
 }
 
 template<typename CharT, typename Array>
-[[ nodiscard ]] constexpr auto any_matches ( std::basic_string_view<CharT> const & s_, Array const & array_ ) noexcept {
-    using size_type = typename std::basic_string_view<CharT>::size_type;
+[[nodiscard]] constexpr auto any_matches ( std::basic_string_view<CharT> const & s_, Array const & array_ ) noexcept {
+    using size_type        = typename std::basic_string_view<CharT>::size_type;
     size_type match_length = 0;
     for ( size_type i = 0; i < Array::size ( ); ++i )
-        if ( ( match_length = match<CharT, size_type> ( s_, array_ [ i ] ) ) )
+        if ( ( match_length = match<CharT, size_type> ( s_, array_[ i ] ) ) )
             break;
     return match_length;
 }
 
 // Do the work.
-template<typename CharT, typename ... Delimiters>
-[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string_view<CharT> & string_view_, Delimiters const ... delimiters_ ) {
-    using sva = detail::StringViewArray<CharT, sizeof ... ( Delimiters )>;
-    const sva params ( delimiters_ ... );
+template<typename CharT, typename... Delimiters>
+[[nodiscard]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string_view<CharT> & string_view_,
+                                                                        Delimiters const... delimiters_ ) {
+    using sva = detail::StringViewArray<CharT, sizeof...( Delimiters )>;
+    const sva params ( delimiters_... );
     std::vector<std::basic_string_view<CharT>> string_view_vector;
     string_view_vector.reserve ( 4 ); // Avoid small size re-allocating, 0 > 1 > 2 > 3 > 4 > 6, now 4 > 6 > 9 etc.
     while ( true ) {
@@ -159,7 +155,7 @@ template<typename CharT, typename ... Delimiters>
         const auto match_start = string_view_.data ( );
         do {
             string_view_.remove_prefix ( 1 );
-        } while ( string_view_.size ( ) and not ( any_matches (string_view_, params ) ) );
+        } while ( string_view_.size ( ) and not( any_matches ( string_view_, params ) ) );
         string_view_vector.emplace_back ( match_start, string_view_.data ( ) - match_start );
     }
     return string_view_vector;
@@ -167,23 +163,24 @@ template<typename CharT, typename ... Delimiters>
 
 } // namespace sax::detail
 
-
 namespace sax {
 
-template<typename CharT, typename ... Delimiters>
-[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string_view<CharT> const & string_view_, Delimiters const ... delimiters_ ) {
-    if (string_view_.empty ( ) )
-        return { };
+template<typename CharT, typename... Delimiters>
+[[nodiscard]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string_view<CharT> const & string_view_,
+                                                                        Delimiters const... delimiters_ ) {
+    if ( string_view_.empty ( ) )
+        return {};
     std::basic_string_view<CharT> string_view{ string_view_ };
-    return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ ) ... );
+    return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ )... );
 }
 
-template<typename CharT, typename ... Delimiters>
-[[ nodiscard ]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string<CharT> const & string_, Delimiters const ... delimiters_ ) {
+template<typename CharT, typename... Delimiters>
+[[nodiscard]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string<CharT> const & string_,
+                                                                        Delimiters const... delimiters_ ) {
     if ( string_.empty ( ) )
-        return { };
+        return {};
     std::basic_string_view<CharT> string_view{ string_ };
-    return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ ) ... );
+    return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ )... );
 }
 
 } // namespace sax

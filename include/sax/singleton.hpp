@@ -23,46 +23,50 @@
 
 #pragma once
 
+#include <new>
 #include <utility>
-
 
 namespace sax {
 
-template <typename Derived>
+template<typename Derived>
 struct singleton final {
 
-    singleton ( ) = default;
-    singleton ( const singleton & ) = delete;
-    singleton ( singleton && ) = delete;
-    virtual ~singleton ( ) = default;
+    singleton ( )                       = default;
+    singleton ( const singleton & )     = delete;
+    singleton ( singleton && ) noexcept = delete;
+    virtual ~singleton ( )              = default;
 
-    singleton & operator = ( const singleton & ) = delete;
-    singleton & operator = ( singleton && ) = delete;
+    singleton & operator= ( const singleton & ) = delete;
+    singleton & operator= ( singleton && ) noexcept = delete;
 
-    template<typename ... Args>
-    static Derived & instance ( Args && ... args_ ) {
-        static Derived instance ( std::forward<Args> ( args_ ) ... );
+    template<typename... Args>
+    [[nodiscard]] static Derived & instance ( Args &&... args_ ) {
+        static Derived instance ( std::forward<Args> ( args_ )... );
         return instance;
     }
+
+    [[nodiscard]] bool is_singleton ( ) const noexcept { return this == &instance ( ); }
 };
 
-
-template <typename Derived>
+template<typename Derived>
 struct thread_singleton final {
 
-    thread_singleton ( ) = default;
-    thread_singleton ( const thread_singleton & ) = delete;
-    thread_singleton ( thread_singleton && ) = delete;
-    virtual ~thread_singleton ( ) = default;
+    thread_singleton ( )                              = default;
+    thread_singleton ( const thread_singleton & )     = delete;
+    thread_singleton ( thread_singleton && ) noexcept = delete;
+    virtual ~thread_singleton ( )                     = default;
 
-    thread_singleton & operator = ( const thread_singleton & ) = delete;
-    thread_singleton & operator = ( thread_singleton && ) = delete;
+    thread_singleton & operator= ( const thread_singleton & ) = delete;
+    thread_singleton & operator= ( thread_singleton && ) noexcept = delete;
 
-    template<typename ... Args>
-    static Derived & instance ( Args && ... args_ ) {
-        static thread_local Derived instance ( std::forward<Args> ( args_ ) ... );
+    template<typename... Args>
+    [[nodiscard]] static Derived & instance ( Args &&... args_ ) {
+        static thread_local Derived instance (
+            std::forward<Args> ( args_ )... );
         return instance;
     }
+
+    [[nodiscard]] bool is_singleton ( ) const noexcept { return this == &instance ( ); }
 };
 
-}
+} // namespace sax
