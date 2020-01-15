@@ -1,7 +1,7 @@
 
 // MIT License
 //
-// Copyright (c) 2019 degski
+// Copyright (c) 2019, 2020 degski
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -169,7 +169,7 @@ template<typename CharT, typename... Delimiters>
 [[nodiscard]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string_view<CharT> const & string_view_,
                                                                         Delimiters const... delimiters_ ) {
     if ( string_view_.empty ( ) )
-        return {};
+        return { };
     std::basic_string_view<CharT> string_view{ string_view_ };
     return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ )... );
 }
@@ -178,7 +178,7 @@ template<typename CharT, typename... Delimiters>
 [[nodiscard]] std::vector<std::basic_string_view<CharT>> string_split ( std::basic_string<CharT> const & string_,
                                                                         Delimiters const... delimiters_ ) {
     if ( string_.empty ( ) )
-        return {};
+        return { };
     std::basic_string_view<CharT> string_view{ string_ };
     return detail::string_split ( string_view, std::forward<Delimiters const> ( delimiters_ )... );
 }

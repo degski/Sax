@@ -1,7 +1,7 @@
 
 // MIT License
 //
-// Copyright (c) 2018, 2019 degski
+// Copyright (c) 2018, 2019, 2020 degski
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -61,8 +61,7 @@ struct thread_singleton final {
 
     template<typename... Args>
     [[nodiscard]] static Derived & instance ( Args &&... args_ ) {
-        static thread_local Derived instance (
-            std::forward<Args> ( args_ )... );
+        static thread_local Derived instance ( std::forward<Args> ( args_ )... );
         return instance;
     }
 

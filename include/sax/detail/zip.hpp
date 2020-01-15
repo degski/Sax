@@ -2,7 +2,7 @@
 // MIT License
 //
 // Copyright (c) 2017 Matheus (https://github.com/matheuspf/ZipIter)
-// Copyright (c) 2019 degski
+// Copyright (c) 2019, 2020 degski
 //              - namespace detail
 //              - renamed to be more in line with STL, no pascal- or camel-case
 //              - #pragma once

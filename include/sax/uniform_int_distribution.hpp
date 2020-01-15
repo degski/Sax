@@ -5,7 +5,7 @@
 // as per the paper by Daniel Lemire:
 // https://arxiv.org/abs/1805.10941.
 //
-// Copyright (c) 2018, 2019 degski
+// Copyright (c) 2018, 2019, 2020 degski
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal

@@ -3,7 +3,7 @@
 // License: MIT
 //
 // utf8conv.hpp -- Copyright (C) by Giovanni Dicanio
-// Copyright (c) 2019 degski
+// Copyright (c) 2019, 2020 degski
 //      27.08.2019: changed header extension name and location.
 //      27.08.2019: added overload for std::string_view.
 //      27.08.2019: #pragma once

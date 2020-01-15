@@ -2,7 +2,7 @@
 // MIT License
 //
 // Copyright (c) 2013 Cosku Acay, http://www.coskuacay.com, https://github.com/cacay/MemoryPool
-// Copyright (c) 2019 degski
+// Copyright (c) 2019, 2020 degski
 //      std::vector -> pt::pector
 //      std::sort -> sax::ska_sort
 //      Functionally still as per the original.
