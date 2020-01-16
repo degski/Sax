@@ -24,13 +24,6 @@
 #pragma once
 
 #include <iostream>
-#include <string_view>
-#include <type_traits>
-
-#include <frozen/string.h>
-#include <frozen/map.h>
-
-#include "sax/utf8conv.hpp"
 
 // Escape sequences.
 
@@ -63,232 +56,100 @@ inline std::wostream & vt ( std::wostream & out_ ) { return out_ << L'\v'; }
 inline std::ostream & sd ( std::ostream & out_ ) { return out_ << " - "; }
 inline std::wostream & sd ( std::wostream & out_ ) { return out_ << L" - "; }
 
-/*
-
-    Name            FG   BG
-    Black           30   40
-    Red             31   41
-    Green           32   42
-    Yellow          33   43
-    Blue            34   44
-    Magenta         35   45
-    Cyan            36   46
-    White           37   47
-    Bright Black    90  100
-    Bright Red      91  101
-    Bright Green    92  102
-    Bright Yellow   93  103
-    Bright Blue     94  104
-    Bright Magenta  95  105
-    Bright Cyan     96  106
-    Bright White    97  107
-
-*/
+// https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
 // Ascii colour output codes for the (Windows-) console.
 
 namespace sax {
 
-template<typename Char>
-using ios = std::basic_ostream<Char>;
-
-namespace detail {
-
-struct Code {
-    frozen::string foreground, background;
-};
-
-inline constexpr frozen::map<frozen::string, Code, 18> const color_map{
-    { "black", { "\033[30m", "\033[40m" } },         { "red", { "\033[31m", "\033[41m" } },
-    { "green", { "\033[32m", "\033[42m" } },         { "yellow", { "\033[33m", "\033[43m" } },
-    { "blue", { "\033[34m", "\033[44m" } },          { "magenta", { "\033[35m", "\033[45m" } },
-    { "cyan", { "\033[36m", "\033[46m" } },          { "white", { "\033[37m", "\033[47m" } },
-    { "bright_black", { "\033[90m", "\033[100m" } }, { "bright_red", { "\033[91m", "\033[101m" } },
-    { "bright_green", { "\033[92m", "\033[102m" } }, { "bright_yellow", { "\033[93m", "\033[103m" } },
-    { "bright_blue", { "\033[94m", "\033[104m" } },  { "bright_magenta", { "\033[95m", "\033[105m" } },
-    { "bright_cyan", { "\033[96m", "\033[106m" } },  { "bright_white", { "\033[97m", "\033[107m" } },
-    { "default_colors", { "\033[0m", "\033[0m" } },  { "invert_colors", { "\033[7m", "\033[7m" } }
-};
-
-inline constexpr frozen::string const fg ( frozen::string const & c_ ) noexcept { return color_map.at ( c_ ).foreground; }
-inline constexpr frozen::string const bg ( frozen::string const & c_ ) noexcept { return color_map.at ( c_ ).background; }
-
-using fg_t = std::true_type;
-using bg_t = std::false_type;
-
-template<typename Char, typename Ground>
-[[maybe_unused]] ios<Char> & get ( ios<Char> & out_, frozen::string const & s_ ) {
-    if constexpr ( std::is_same<Ground, fg_t>::value ) {
-        auto const code = detail::fg ( s_ );
-        if constexpr ( std::is_same<Char, char>::value ) {
-            out_ << code;
-        }
-        else {
-            out_ << ::sax::utf8_to_utf16 ( std::basic_string_view<char> ( code.data ( ), code.size ( ) ) );
-        }
-    }
-    else {
-        auto const code = detail::bg ( s_ );
-        if constexpr ( std::is_same<Char, char>::value ) {
-            out_ << code;
-        }
-        else {
-            out_ << ::sax::utf8_to_utf16 ( std::basic_string_view<char> ( code.data ( ), code.size ( ) ) );
-        }
-    }
-    return out_;
-}
-} // namespace detail
-
 namespace fg {
 
-using namespace detail;
-
-template<typename Char>
-ios<Char> & black ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "black" );
-}
-template<typename Char>
-ios<Char> & red ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "red" );
-}
-template<typename Char>
-ios<Char> & green ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "green" );
-}
-template<typename Char>
-ios<Char> & yellow ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "yellow" );
-}
-template<typename Char>
-ios<Char> & blue ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "blue" );
-}
-template<typename Char>
-ios<Char> & magenta ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "magenta" );
-}
-template<typename Char>
-ios<Char> & cyan ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "cyan" );
-}
-template<typename Char>
-ios<Char> & white ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "white" );
-}
-template<typename Char>
-ios<Char> & bright_black ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "bright_black" );
-}
-template<typename Char>
-ios<Char> & bright_red ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "bright_red" );
-}
-template<typename Char>
-ios<Char> & bright_green ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "bright_green" );
-}
-template<typename Char>
-ios<Char> & bright_yellow ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "bright_yellow" );
-}
-template<typename Char>
-ios<Char> & bright_blue ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "bright_blue" );
-}
-template<typename Char>
-ios<Char> & bright_magenta ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( "bright_magenta" );
-}
-template<typename Char>
-ios<Char> & bright_cyan ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "bright_cyan" );
-}
-template<typename Char>
-ios<Char> & bright_white ( ios<Char> & out_ ) {
-    return get<Char, fg_t> ( out_, "bright_white" );
-}
-
+inline constexpr char const * black{ "\033[30m" };
+inline constexpr char const * red{ "\033[31m" };
+inline constexpr char const * green{ "\033[32m" };
+inline constexpr char const * yellow{ "\033[33m" };
+inline constexpr char const * blue{ "\033[34m" };
+inline constexpr char const * magenta{ "\033[35m" };
+inline constexpr char const * cyan{ "\033[36m" };
+inline constexpr char const * white{ "\033[37m" };
+inline constexpr char const * default { "\033[39m" };
+inline constexpr char const * bright_black{ "\033[90m" };
+inline constexpr char const * bright_red{ "\033[91m" };
+inline constexpr char const * bright_green{ "\033[92m" };
+inline constexpr char const * bright_yellow{ "\033[93m" };
+inline constexpr char const * bright_blue{ "\033[94m" };
+inline constexpr char const * bright_magenta{ "\033[95m" };
+inline constexpr char const * bright_cyan{ "\033[96m" };
+inline constexpr char const * bright_white{ "\033[97m" };
+inline constexpr char const * bold{ "\033[1m" };
+#if defined( _UNICODE ) or defined( UNICODE )
+inline constexpr wchar_t const * wblack{ L"\033[30m" };
+inline constexpr wchar_t const * wred{ L"\033[31m" };
+inline constexpr wchar_t const * wgreen{ L"\033[32m" };
+inline constexpr wchar_t const * wyellow{ L"\033[33m" };
+inline constexpr wchar_t const * wblue{ L"\033[34m" };
+inline constexpr wchar_t const * wmagenta{ L"\033[35m" };
+inline constexpr wchar_t const * wcyan{ L"\033[36m" };
+inline constexpr wchar_t const * wwhite{ L"\033[37m" };
+inline constexpr wchar_t const * wdefault{ L"\033[39m" };
+inline constexpr wchar_t const * wbright_black{ L"\033[90m" };
+inline constexpr wchar_t const * wbright_red{ L"\033[91m" };
+inline constexpr wchar_t const * wbright_green{ L"\033[92m" };
+inline constexpr wchar_t const * wbright_yellow{ L"\033[93m" };
+inline constexpr wchar_t const * wbright_blue{ L"\033[94m" };
+inline constexpr wchar_t const * wbright_magenta{ L"\033[95m" };
+inline constexpr wchar_t const * wbright_cyan{ L"\033[96m" };
+inline constexpr wchar_t const * wbright_white{ L"\033[97m" };
+inline constexpr wchar_t const * wbold{ L"\033[1m" };
+#endif
 } // namespace fg
 
 namespace bg {
 
-using namespace detail;
-
-template<typename Char>
-ios<Char> & black ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "black" );
-}
-template<typename Char>
-ios<Char> & red ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "red" );
-}
-template<typename Char>
-ios<Char> & green ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "green" );
-}
-template<typename Char>
-ios<Char> & yellow ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "yellow" );
-}
-template<typename Char>
-ios<Char> & blue ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "blue" );
-}
-template<typename Char>
-ios<Char> & magenta ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "magenta" );
-}
-template<typename Char>
-ios<Char> & cyan ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "cyan" );
-}
-template<typename Char>
-ios<Char> & white ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "white" );
-}
-template<typename Char>
-ios<Char> & bright_black ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_black" );
-}
-template<typename Char>
-ios<Char> & bright_red ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_red" );
-}
-template<typename Char>
-ios<Char> & bright_green ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_green" );
-}
-template<typename Char>
-ios<Char> & bright_yellow ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_yellow" );
-}
-template<typename Char>
-ios<Char> & bright_blue ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_blue" );
-}
-template<typename Char>
-ios<Char> & bright_magenta ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_magenta" );
-}
-template<typename Char>
-ios<Char> & bright_cyan ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_cyan" );
-}
-template<typename Char>
-ios<Char> & bright_white ( ios<Char> & out_ ) {
-    return get<Char, bg_t> ( out_, "bright_white" );
-}
-
+inline constexpr char const * black{ "\033[40m" };
+inline constexpr char const * red{ "\033[41m" };
+inline constexpr char const * green{ "\033[42m" };
+inline constexpr char const * yellow{ "\033[43m" };
+inline constexpr char const * blue{ "\033[44m" };
+inline constexpr char const * magenta{ "\033[45m" };
+inline constexpr char const * cyan{ "\033[46m" };
+inline constexpr char const * white{ "\033[47m" };
+inline constexpr char const * default { "\033[49m" };
+inline constexpr char const * bright_black{ "\033[100m" };
+inline constexpr char const * bright_red{ "\033[101m" };
+inline constexpr char const * bright_green{ "\033[102m" };
+inline constexpr char const * bright_yellow{ "\033[103m" };
+inline constexpr char const * bright_blue{ "\033[104m" };
+inline constexpr char const * bright_magenta{ "\033[105m" };
+inline constexpr char const * bright_cyan{ "\033[106m" };
+inline constexpr char const * bright_white{ "\033[107m" };
+#if defined( _UNICODE ) or defined( UNICODE )
+inline constexpr wchar_t const * wblack{ L"\033[40m" };
+inline constexpr wchar_t const * wred{ L"\033[41m" };
+inline constexpr wchar_t const * wgreen{ L"\033[42m" };
+inline constexpr wchar_t const * wyellow{ L"\033[43m" };
+inline constexpr wchar_t const * wblue{ L"\033[44m" };
+inline constexpr wchar_t const * wmagenta{ L"\033[45m" };
+inline constexpr wchar_t const * wcyan{ L"\033[46m" };
+inline constexpr wchar_t const * wwhite{ L"\033[47m" };
+inline constexpr wchar_t const * wdefault{ L"\033[49m" };
+inline constexpr wchar_t const * wbright_black{ L"\033[100m" };
+inline constexpr wchar_t const * wbright_red{ L"\033[101m" };
+inline constexpr wchar_t const * wbright_green{ L"\033[102m" };
+inline constexpr wchar_t const * wbright_yellow{ L"\033[103m" };
+inline constexpr wchar_t const * wbright_blue{ L"\033[104m" };
+inline constexpr wchar_t const * wbright_magenta{ L"\033[105m" };
+inline constexpr wchar_t const * wbright_cyan{ L"\033[106m" };
+inline constexpr wchar_t const * wbright_white{ L"\033[107m" };
+#endif
 } // namespace bg
 
-template<typename Char>
-ios<Char> & reset_colors ( ios<Char> & out_ ) {
-    return detail::get<Char, detail::fg_t> ( out_, "default_colors" );
-}
-template<typename Char>
-ios<Char> & invert_colors ( ios<Char> & out_ ) {
-    return detail::get<Char, detail::fg_t> ( out_, "invert_colors" );
-}
-
+inline constexpr char const * default_colors{ "\033[0m" };
+inline constexpr char const * invert_colors{ "\033[7m" };
+inline constexpr char const * revert_colors{ "\033[27m" };
+#if defined( _UNICODE ) or defined( UNICODE )
+inline constexpr wchar_t const * wdefault_colors{ L"\033[0m" };
+inline constexpr wchar_t const * winvert_colors{ L"\033[7m" };
+inline constexpr wchar_t const * revert_colors{ L"\033[27m" };
+#endif
 } // namespace sax
