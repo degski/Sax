@@ -24,9 +24,13 @@
 #pragma once
 
 #include <iostream>
+#include <string_view>
+#include <type_traits>
 
 #include <frozen/string.h>
 #include <frozen/map.h>
+
+#include "sax/utf8conv.hpp"
 
 // Escape sequences.
 
@@ -83,9 +87,10 @@ inline std::wostream & sd ( std::wostream & out_ ) { return out_ << L" - "; }
 
 // Ascii colour output codes for the (Windows-) console.
 
-// TODO: Wide streams.
-
 namespace sax {
+
+template<typename Char>
+using ios = std::basic_ostream<Char>;
 
 namespace detail {
 
@@ -93,7 +98,7 @@ struct Code {
     frozen::string foreground, background;
 };
 
-inline constexpr frozen::map<frozen::string, Code, 17> const color_map{
+inline constexpr frozen::map<frozen::string, Code, 18> const color_map{
     { "black", { "\033[30m", "\033[40m" } },         { "red", { "\033[31m", "\033[41m" } },
     { "green", { "\033[32m", "\033[42m" } },         { "yellow", { "\033[33m", "\033[43m" } },
     { "blue", { "\033[34m", "\033[44m" } },          { "magenta", { "\033[35m", "\033[45m" } },
@@ -102,58 +107,188 @@ inline constexpr frozen::map<frozen::string, Code, 17> const color_map{
     { "bright_green", { "\033[92m", "\033[102m" } }, { "bright_yellow", { "\033[93m", "\033[103m" } },
     { "bright_blue", { "\033[94m", "\033[104m" } },  { "bright_magenta", { "\033[95m", "\033[105m" } },
     { "bright_cyan", { "\033[96m", "\033[106m" } },  { "bright_white", { "\033[97m", "\033[107m" } },
-    { "default_colors", { "\033[0m", "\033[0m" } }
+    { "default_colors", { "\033[0m", "\033[0m" } },  { "invert_colors", { "\033[7m", "\033[7m" } }
 };
 
-inline constexpr char const * fg ( frozen::string const & c_ ) noexcept { return color_map.at ( c_ ).foreground.data ( ); }
-inline constexpr char const * bg ( frozen::string const & c_ ) noexcept { return color_map.at ( c_ ).background.data ( ); }
+inline constexpr frozen::string const fg ( frozen::string const & c_ ) noexcept { return color_map.at ( c_ ).foreground; }
+inline constexpr frozen::string const bg ( frozen::string const & c_ ) noexcept { return color_map.at ( c_ ).background; }
 
+using fg_t = std::true_type;
+using bg_t = std::false_type;
+
+template<typename Char, typename Ground>
+[[maybe_unused]] ios<Char> & get ( ios<Char> & out_, frozen::string const & s_ ) {
+    if constexpr ( std::is_same<Ground, fg_t>::value ) {
+        auto const code = detail::fg ( s_ );
+        if constexpr ( std::is_same<Char, char>::value ) {
+            out_ << code;
+        }
+        else {
+            out_ << ::sax::utf8_to_utf16 ( std::basic_string_view<char> ( code.data ( ), code.size ( ) ) );
+        }
+    }
+    else {
+        auto const code = detail::bg ( s_ );
+        if constexpr ( std::is_same<Char, char>::value ) {
+            out_ << code;
+        }
+        else {
+            out_ << ::sax::utf8_to_utf16 ( std::basic_string_view<char> ( code.data ( ), code.size ( ) ) );
+        }
+    }
+    return out_;
+}
 } // namespace detail
 
 namespace fg {
 
-inline std::ostream & black ( std::ostream & out_ ) { return out_ << detail::fg ( "black" ); }
-inline std::ostream & red ( std::ostream & out_ ) { return out_ << detail::fg ( "red" ); }
-inline std::ostream & green ( std::ostream & out_ ) { return out_ << detail::fg ( "green" ); }
-inline std::ostream & yellow ( std::ostream & out_ ) { return out_ << detail::fg ( "yellow" ); }
-inline std::ostream & blue ( std::ostream & out_ ) { return out_ << detail::fg ( "blue" ); }
-inline std::ostream & magenta ( std::ostream & out_ ) { return out_ << detail::fg ( "magenta" ); }
-inline std::ostream & cyan ( std::ostream & out_ ) { return out_ << detail::fg ( "cyan" ); }
-inline std::ostream & white ( std::ostream & out_ ) { return out_ << detail::fg ( "white" ); }
-inline std::ostream & bright_black ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_black" ); }
-inline std::ostream & bright_red ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_red" ); }
-inline std::ostream & bright_green ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_green" ); }
-inline std::ostream & bright_yellow ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_yellow" ); }
-inline std::ostream & bright_blue ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_blue" ); }
-inline std::ostream & bright_magenta ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_magenta" ); }
-inline std::ostream & bright_cyan ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_cyan" ); }
-inline std::ostream & bright_white ( std::ostream & out_ ) { return out_ << detail::fg ( "bright_white" ); }
+using namespace detail;
+
+template<typename Char>
+ios<Char> & black ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "black" );
+}
+template<typename Char>
+ios<Char> & red ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "red" );
+}
+template<typename Char>
+ios<Char> & green ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "green" );
+}
+template<typename Char>
+ios<Char> & yellow ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "yellow" );
+}
+template<typename Char>
+ios<Char> & blue ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "blue" );
+}
+template<typename Char>
+ios<Char> & magenta ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "magenta" );
+}
+template<typename Char>
+ios<Char> & cyan ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "cyan" );
+}
+template<typename Char>
+ios<Char> & white ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "white" );
+}
+template<typename Char>
+ios<Char> & bright_black ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "bright_black" );
+}
+template<typename Char>
+ios<Char> & bright_red ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "bright_red" );
+}
+template<typename Char>
+ios<Char> & bright_green ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "bright_green" );
+}
+template<typename Char>
+ios<Char> & bright_yellow ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "bright_yellow" );
+}
+template<typename Char>
+ios<Char> & bright_blue ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "bright_blue" );
+}
+template<typename Char>
+ios<Char> & bright_magenta ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( "bright_magenta" );
+}
+template<typename Char>
+ios<Char> & bright_cyan ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "bright_cyan" );
+}
+template<typename Char>
+ios<Char> & bright_white ( ios<Char> & out_ ) {
+    return get<Char, fg_t> ( out_, "bright_white" );
+}
 
 } // namespace fg
 
 namespace bg {
 
-inline std::ostream & black ( std::ostream & out_ ) { return out_ << detail::bg ( "black" ); }
-inline std::ostream & red ( std::ostream & out_ ) { return out_ << detail::bg ( "red" ); }
-inline std::ostream & green ( std::ostream & out_ ) { return out_ << detail::bg ( "green" ); }
-inline std::ostream & yellow ( std::ostream & out_ ) { return out_ << detail::bg ( "yellow" ); }
-inline std::ostream & blue ( std::ostream & out_ ) { return out_ << detail::bg ( "blue" ); }
-inline std::ostream & magenta ( std::ostream & out_ ) { return out_ << detail::bg ( "magenta" ); }
-inline std::ostream & cyan ( std::ostream & out_ ) { return out_ << detail::bg ( "cyan" ); }
-inline std::ostream & white ( std::ostream & out_ ) { return out_ << detail::bg ( "white" ); }
-inline std::ostream & bright_black ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_black" ); }
-inline std::ostream & bright_red ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_red" ); }
-inline std::ostream & bright_green ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_green" ); }
-inline std::ostream & bright_yellow ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_yellow" ); }
-inline std::ostream & bright_blue ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_blue" ); }
-inline std::ostream & bright_magenta ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_magenta" ); }
-inline std::ostream & bright_cyan ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_cyan" ); }
-inline std::ostream & bright_white ( std::ostream & out_ ) { return out_ << detail::bg ( "bright_white" ); }
+using namespace detail;
+
+template<typename Char>
+ios<Char> & black ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "black" );
+}
+template<typename Char>
+ios<Char> & red ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "red" );
+}
+template<typename Char>
+ios<Char> & green ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "green" );
+}
+template<typename Char>
+ios<Char> & yellow ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "yellow" );
+}
+template<typename Char>
+ios<Char> & blue ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "blue" );
+}
+template<typename Char>
+ios<Char> & magenta ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "magenta" );
+}
+template<typename Char>
+ios<Char> & cyan ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "cyan" );
+}
+template<typename Char>
+ios<Char> & white ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "white" );
+}
+template<typename Char>
+ios<Char> & bright_black ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_black" );
+}
+template<typename Char>
+ios<Char> & bright_red ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_red" );
+}
+template<typename Char>
+ios<Char> & bright_green ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_green" );
+}
+template<typename Char>
+ios<Char> & bright_yellow ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_yellow" );
+}
+template<typename Char>
+ios<Char> & bright_blue ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_blue" );
+}
+template<typename Char>
+ios<Char> & bright_magenta ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_magenta" );
+}
+template<typename Char>
+ios<Char> & bright_cyan ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_cyan" );
+}
+template<typename Char>
+ios<Char> & bright_white ( ios<Char> & out_ ) {
+    return get<Char, bg_t> ( out_, "bright_white" );
+}
 
 } // namespace bg
 
-inline std::ostream & reset_colors ( std::ostream & out_ ) {
-    return out_ << detail::color_map.at ( "default_colors" ).foreground.data ( );
+template<typename Char>
+ios<Char> & reset_colors ( ios<Char> & out_ ) {
+    return detail::get<Char, detail::fg_t> ( out_, "default_colors" );
+}
+template<typename Char>
+ios<Char> & invert_colors ( ios<Char> & out_ ) {
+    return detail::get<Char, detail::fg_t> ( out_, "invert_colors" );
 }
 
 } // namespace sax
