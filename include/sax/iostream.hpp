@@ -147,10 +147,12 @@ inline constexpr wstring_literal_t wbright_white{ L"\033[107m" };
 #endif
 } // namespace bg
 
+inline constexpr string_literal_t none{ nullptr };
 inline constexpr string_literal_t reset{ "\033[0m" };
 inline constexpr string_literal_t invert_colors{ "\033[7m" };
 inline constexpr string_literal_t revert_colors{ "\033[27m" };
 #if defined( _UNICODE ) or defined( UNICODE )
+inline constexpr wstring_literal_t wnone{ nullptr };
 inline constexpr wstring_literal_t wreset{ L"\033[0m" };
 inline constexpr wstring_literal_t winvert_colors{ L"\033[7m" };
 inline constexpr wstring_literal_t wrevert_colors{ L"\033[27m" };
