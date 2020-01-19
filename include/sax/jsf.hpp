@@ -41,76 +41,72 @@ namespace sax {
 
 namespace jsf_detail {
 
-template <typename itype, typename rtype,
-    unsigned int p, unsigned int q, unsigned int r>
-    class jsf {
-        protected:
-        itype a_, b_, c_, d_;
+template<typename itype, typename rtype, unsigned int p, unsigned int q, unsigned int r>
+class alignas ( 64 ) jsf {
+    protected:
+    itype a_, b_, c_, d_;
 
-        static constexpr unsigned int ITYPE_BITS = 8 * sizeof ( itype );
-        static constexpr unsigned int RTYPE_BITS = 8 * sizeof ( rtype );
+    static constexpr unsigned int ITYPE_BITS = 8 * sizeof ( itype );
+    static constexpr unsigned int RTYPE_BITS = 8 * sizeof ( rtype );
 
-        static itype rotate ( itype x, unsigned int k ) {
-            return ( x << k ) | ( x >> ( ITYPE_BITS - k ) );
-        }
+    static itype rotate ( itype x, unsigned int k ) { return ( x << k ) | ( x >> ( ITYPE_BITS - k ) ); }
 
-        public:
-        using result_type = rtype;
-        using state_type = itype;
+    public:
+    using result_type = rtype;
+    using state_type  = itype;
 
-        static constexpr result_type min ( ) { return 0; }
-        static constexpr result_type max ( ) { return ~result_type ( 0 ); }
+    static constexpr result_type min ( ) { return 0; }
+    static constexpr result_type max ( ) { return ~result_type ( 0 ); }
 
-        jsf ( itype seed = itype ( 0xcafe5eed00000001ULL ) )
-            : a_ ( 0xf1ea5eed ), b_ ( seed ), c_ ( seed ), d_ ( seed ) {
-        }
+    jsf ( itype seed = itype ( 0xcafe5eed00000001ULL ) ) : a_ ( 0xf1ea5eed ), b_ ( seed ), c_ ( seed ), d_ ( seed ) {}
 
-        jsf ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 )
-            : a_(std::move(seed4)), b_(std::move(seed3)), c_(std::move(seed2)), d_((std::move(seed1)|itype(1))) {
-            for ( unsigned int i = 0; i < 20; ++i )
-                advance ( );
-        }
-
-        void seed ( const itype seed = itype ( 0xcafe5eed00000001ULL ) ) {
-            a_ = 0xf1ea5eed; b_ = seed; c_ = seed; d_ = seed;
-        }
-
-        void seed ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 ) {
-            a_ = std::move ( seed4 ); b_ = std::move ( seed3 ); c_ = std::move ( seed2 ); d_ = ( std::move ( seed1 ) | itype{1} );
-            for ( unsigned int i = 0; i < 20; ++i )
-                advance ( );
-        }
-
-        void advance ( ) {
-            itype e = a_ - rotate ( b_, p );
-            a_ = b_ ^ rotate ( c_, q );
-            b_ = c_ + ( r ? rotate ( d_, r ) : d_ );
-            c_ = d_ + e;
-            d_ = e + a_;
-        }
-
-
-        rtype operator()( ) {
+    jsf ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 ) :
+        a_ ( std::move ( seed4 ) ), b_ ( std::move ( seed3 ) ), c_ ( std::move ( seed2 ) ),
+        d_ ( ( std::move ( seed1 ) | itype ( 1 ) ) ) {
+        for ( unsigned int i = 0; i < 20; ++i )
             advance ( );
-            return rtype ( d_ );
-        }
+    }
 
-        bool operator==( const jsf& rhs ) {
-            return ( a_ == rhs.a_ ) && ( b_ == rhs.b_ )
-                && ( c_ == rhs.c_ ) && ( d_ == rhs.d_ );
-        }
+    void seed ( const itype seed = itype ( 0xcafe5eed00000001ULL ) ) {
+        a_ = 0xf1ea5eed;
+        b_ = seed;
+        c_ = seed;
+        d_ = seed;
+    }
 
-        bool operator!=( const jsf& rhs ) {
-            return !operator==( rhs );
-        }
+    void seed ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 ) {
+        a_ = std::move ( seed4 );
+        b_ = std::move ( seed3 );
+        c_ = std::move ( seed2 );
+        d_ = ( std::move ( seed1 ) | itype{ 1 } );
+        for ( unsigned int i = 0; i < 20; ++i )
+            advance ( );
+    }
 
-        // Not (yet) implemented:
-        //   - arbitrary jumpahead (doable, but annoying to write).
-        //   - I/O
-        //   - Seeding from a seed_seq.
+    void advance ( ) {
+        itype e = a_ - rotate ( b_, p );
+        a_      = b_ ^ rotate ( c_, q );
+        b_      = c_ + ( r ? rotate ( d_, r ) : d_ );
+        c_      = d_ + e;
+        d_      = e + a_;
+    }
+
+    rtype operator( ) ( ) {
+        advance ( );
+        return rtype ( d_ );
+    }
+
+    bool operator== ( const jsf & rhs ) { return ( a_ == rhs.a_ ) && ( b_ == rhs.b_ ) && ( c_ == rhs.c_ ) && ( d_ == rhs.d_ ); }
+
+    bool operator!= ( const jsf & rhs ) { return !operator== ( rhs ); }
+
+    // Not (yet) implemented:
+    //   - arbitrary jumpahead (doable, but annoying to write).
+    //   - I/O
+    //   - Seeding from a seed_seq.
 };
 
-} // end namespace
+} // namespace jsf_detail
 
 ///// ---- Specific JSF Generators ---- ////
 //
@@ -164,7 +160,7 @@ using jsf32rw = jsf_detail::jsf<uint32_t, uint32_t, 27, 16, 7>;
 
 using jsf32n = jsf32na;
 using jsf32r = jsf32rq;
-using jsf32 = jsf32n;
+using jsf32  = jsf32n;
 
 // - 256 state bits, uint64_t output
 
@@ -173,7 +169,7 @@ using jsf64ra = jsf_detail::jsf<uint64_t, uint64_t, 7, 13, 37>;
 
 using jsf64n = jsf64na;
 using jsf64r = jsf64ra;
-using jsf64 = jsf64r;
+using jsf64  = jsf64r;
 
 // TINY VERSIONS FOR TESTING AND SPECIALIZED USES ONLY
 //

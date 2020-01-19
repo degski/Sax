@@ -39,45 +39,36 @@ namespace sax {
 
 namespace lehmer_detail {
 
-template <typename rtype, typename stype>
+template<typename rtype, typename stype>
 class mcg128 {
     stype state_;
-    static constexpr __uint128_t MCG_MULT = ( __uint128_t { 5017888479014934897ULL } << 64 ) + 2747143273072462557ULL; // passing as a template parameter crashes clang frontend.
+    static constexpr __uint128_t MCG_MULT = ( __uint128_t{ 5017888479014934897ULL } << 64 ) +
+                                            2747143273072462557ULL; // passing as a template parameter crashes clang frontend.
 
     static constexpr unsigned int STYPE_BITS = 8 * sizeof ( stype );
     static constexpr unsigned int RTYPE_BITS = 8 * sizeof ( rtype );
-
 
     public:
     using result_type = rtype;
     static constexpr result_type min ( ) { return result_type ( 0 ); }
     static constexpr result_type max ( ) { return ~result_type ( 0 ); }
 
-    mcg128 ( stype state = stype ( 0x9f57c403d06c42fcUL ) )
-        : state_ ( state | 1 ) {
+    mcg128 ( stype state = stype ( 0x9f57c403d06c42fcUL ) ) : state_ ( state | 1 ) {
         // Nothing (else) to do.
     }
 
-    void seed ( const rtype s_ ) {
-        state_ = stype { s_ | 1 };
-    }
+    void seed ( const rtype s_ ) { state_ = stype{ s_ | 1 }; }
 
-    void advance ( ) {
-        state_ *= MCG_MULT;
-    }
+    void advance ( ) { state_ *= MCG_MULT; }
 
-    result_type operator()( ) {
+    result_type operator( ) ( ) {
         advance ( );
         return result_type ( state_ >> ( STYPE_BITS - RTYPE_BITS ) );
     }
 
-    bool operator==( const mcg128& rhs ) {
-        return ( state_ == rhs.state_ );
-    }
+    bool operator== ( const mcg128 & rhs ) { return ( state_ == rhs.state_ ); }
 
-    bool operator!=( const mcg128& rhs ) {
-        return !operator==( rhs );
-    }
+    bool operator!= ( const mcg128 & rhs ) { return !operator== ( rhs ); }
 
     // Not (yet) implemented:
     //   - arbitrary jumpahead (see PCG code for an implementation)
@@ -85,8 +76,7 @@ class mcg128 {
     //   - Seeding from a seed_seq.
 };
 
-
-template <typename rtype, typename stype>
+template<typename rtype, typename stype>
 class mcg128_fast {
     stype state_;
     static constexpr uint64_t MCG_MULT = 0xda942042e4dd58b5ULL;
@@ -94,48 +84,38 @@ class mcg128_fast {
     static constexpr unsigned int STYPE_BITS = 8 * sizeof ( stype );
     static constexpr unsigned int RTYPE_BITS = 8 * sizeof ( rtype );
 
-
     public:
     using result_type = rtype;
     static constexpr result_type min ( ) { return result_type ( 0 ); }
     static constexpr result_type max ( ) { return ~result_type ( 0 ); }
 
-    mcg128_fast ( stype state = stype ( 0x9f57c403d06c42fcUL ) )
-        : state_ ( state | 1 ) {
+    mcg128_fast ( stype state = stype ( 0x9f57c403d06c42fcUL ) ) : state_ ( state | 1 ) {
         // Nothing (else) to do.
     }
 
-    void seed ( const rtype s_ ) {
-        state_ = stype { s_ | 1 };
-    }
+    void seed ( const rtype s_ ) { state_ = stype{ s_ | 1 }; }
 
-    void advance ( ) {
-        state_ *= MCG_MULT;
-    }
+    void advance ( ) { state_ *= MCG_MULT; }
 
-    result_type operator()( ) {
+    result_type operator( ) ( ) {
         advance ( );
         return result_type ( state_ >> ( STYPE_BITS - RTYPE_BITS ) );
     }
 
-    bool operator==( const mcg128_fast& rhs ) {
-        return ( state_ == rhs.state_ );
-    }
+    bool operator== ( const mcg128_fast & rhs ) { return ( state_ == rhs.state_ ); }
 
-    bool operator!=( const mcg128_fast& rhs ) {
-        return !operator==( rhs );
-    }
+    bool operator!= ( const mcg128_fast & rhs ) { return !operator== ( rhs ); }
 
     // Not (yet) implemented:
     //   - arbitrary jumpahead (see PCG code for an implementation)
     //   - I/O
     //   - Seeding from a seed_seq.
 };
-}
+} // namespace lehmer_detail
 
-using mcg128 = lehmer_detail::mcg128<uint64_t, __uint128_t>;
+using mcg128      = lehmer_detail::mcg128<uint64_t, __uint128_t>;
 using mcg128_fast = lehmer_detail::mcg128_fast<uint64_t, __uint128_t>;
 
-}
+} // namespace sax
 
 #endif // LEHMER_HPP_INCLUDED
