@@ -26,7 +26,6 @@
 #include <tuple>
 #include <type_traits>
 
-
 // Code from: https://www.reddit.com/r/cpp/comments/77gxna/tight_pair_a_compressed_pair_for_c17/dom0rhr/
 //       and: https://godbolt.org/g/j8nkuD
 
@@ -35,42 +34,30 @@ namespace sax {
 template<typename T, typename U>
 struct compressed_pair : std::tuple<T, U> {
 
-  using std::tuple<T, U>::tuple;
+    using std::tuple<T, U>::tuple;
 
-  [[ nodiscard ]] constexpr decltype ( auto ) first ( ) noexcept {
-    return std::get<0>( * this );
-  }
+    [[nodiscard]] constexpr decltype ( auto ) first ( ) noexcept { return std::get<0> ( *this ); }
 
-  [[ nodiscard ]] constexpr decltype ( auto ) first ( ) const noexcept {
-    return std::get<0>( * this );
-  }
+    [[nodiscard]] constexpr decltype ( auto ) first ( ) const noexcept { return std::get<0> ( *this ); }
 
-  [[ nodiscard ]] constexpr decltype ( auto ) second ( ) noexcept {
-    return std::get<1>( * this );
-  }
+    [[nodiscard]] constexpr decltype ( auto ) second ( ) noexcept { return std::get<1> ( *this ); }
 
-  [[ nodiscard ]] constexpr decltype ( auto ) second ( ) const noexcept {
-    return std::get<1>( * this );
-  }
+    [[nodiscard]] constexpr decltype ( auto ) second ( ) const noexcept { return std::get<1> ( *this ); }
 };
-
-}
-
 
 // Deduction guide for C++17.
 template<typename T, typename U>
-sax::compressed_pair(T, U) -> sax::compressed_pair<T, U>;
+compressed_pair( T, U ) -> compressed_pair<T, U>;
 
+} // namespace sax
 
 // Structured bindings stuff.
 namespace std {
 
-template <typename T, typename U>
-struct tuple_size<sax::compressed_pair<T, U>>
-  : integral_constant<size_t, 2> { };
+template<typename T, typename U>
+struct tuple_size<sax::compressed_pair<T, U>> : integral_constant<size_t, 2> {};
 
-template <size_t I, typename T, typename U>
-struct tuple_element<I, sax::compressed_pair<T, U>>
-  : tuple_element<I, tuple<T, U>> { };
+template<size_t I, typename T, typename U>
+struct tuple_element<I, sax::compressed_pair<T, U>> : tuple_element<I, tuple<T, U>> {};
 
-}
+} // namespace std

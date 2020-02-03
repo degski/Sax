@@ -276,6 +276,7 @@ inline void memcpy_avx ( void * dst, void const * src, size_t size ) noexcept {
 // dst and src must be 16-byte aligned
 // size must be multiple of 16*2 = 32 bytes
 inline void memcpy_sse ( void * dst, void const * src, size_t size ) noexcept {
+// https://hero.handmade.network/forums/code-discussion/t/157-memory_bandwidth_+_implementing_memcpy
     size_t stride = 2 * sizeof ( __m128 );
     while ( size ) {
         __m128 a = _mm_load_ps ( ( float * ) ( reinterpret_cast<uint8_t const *> ( src ) + 0 * sizeof ( __m128 ) ) );
