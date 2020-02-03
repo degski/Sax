@@ -287,6 +287,19 @@ inline void memcpy_sse ( void * dst, void const * src, size_t size ) noexcept {
         dst = reinterpret_cast<uint8_t *> ( dst ) + stride;
     }
 }
+
+template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+void print_bits ( T const n_ ) noexcept {
+    using Tu = typename std::make_unsigned<T>::type;
+    Tu n;
+    std::memcpy ( &n, &n_, sizeof ( Tu ) );
+    Tu i = Tu ( 1 ) << ( sizeof ( Tu ) * 8 - 1 );
+    while ( i ) {
+        putchar ( int ( ( n & i ) > 0 ) + int ( 48 ) );
+        i >>= 1;
+    }
+}
+
 } // namespace sax
 
 template<typename Stream, typename T, typename = std::enable_if_t<std::is_pointer<T>::value>>
