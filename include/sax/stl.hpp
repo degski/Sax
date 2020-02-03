@@ -287,3 +287,4 @@ inline void memcpy_sse ( void * dst, void const * src, size_t size ) noexcept {
         dst = reinterpret_cast<uint8_t *> ( dst ) + stride;
     }
 }
+} // namespace sax
