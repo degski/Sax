@@ -288,3 +288,19 @@ inline void memcpy_sse ( void * dst, void const * src, size_t size ) noexcept {
     }
 }
 } // namespace sax
+
+template<typename Stream, typename T, typename = std::enable_if_t<std::is_pointer<T>::value>>
+Stream & operator<< ( Stream & out_, T const & n_ ) noexcept {
+    std::int8_t n[ 8 ];
+    std::memcpy ( &n, &n_, sizeof ( T ) );
+    std::swap ( n[ 0 ], n[ 6 ] );
+    std::swap ( n[ 1 ], n[ 7 ] );
+    std::swap ( n[ 2 ], n[ 4 ] );
+    std::swap ( n[ 3 ], n[ 5 ] );
+    out_ << "0x" << std::setfill ( '0' ) << std::setw ( 4 ) << std::hex << std::uppercase
+         << ( std::uint32_t ) ( ( std::uint16_t * ) n )[ 0 ];
+    for ( int i = 1; i < 4; ++i )
+        out_ << '\'' << std::setw ( 4 ) << ( std::uint32_t ) ( ( std::uint16_t * ) n )[ i ];
+    out_ << std::setfill ( ' ' ) << std::setw ( 0 ) << std::dec << std::nouppercase << lf;
+    return out_;
+}
