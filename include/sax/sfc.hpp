@@ -10,6 +10,7 @@
  * Copyright (c) 2019 degski
  *    - changed constructors slightly;
  *    - added seed functions;
+ *    - added fully seeding constructor;
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -58,6 +59,10 @@ class alignas ( 64 ) sfc {
     static constexpr result_type max ( ) { return ~result_type ( 0 ); }
 
     sfc ( itype seed = itype ( 0xcafef00dbeef5eedULL ) ) : a_ ( seed ), b_ ( seed ), c_ ( seed ), d_ ( 1ULL ) {
+        // Nothing (else) to do
+    }
+
+    sfc ( itype seed0, itype seed1, itype seed2, itype seed3 ) ) : a_ ( seed0 ), b_ ( seed1 ), c_ ( seed2 ), d_ ( seed3 | 1ULL ) {
         // Nothing (else) to do
     }
 

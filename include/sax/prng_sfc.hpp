@@ -35,22 +35,22 @@ namespace sax {
 
 #if UINTPTR_MAX == 0xFFFF'FFFF'FFFF'FFFF
 using Rng = sfc64;
-[[ nodiscard ]] inline std::uint64_t os_seed ( ) noexcept {
+[[ nodiscard ]] inline typename Rng::result_type os_seed ( ) noexcept {
     std::random_device rd;
-    auto rnd = [ & rd ] ( const int shift ) { return static_cast<std::uint64_t> ( rd ( ) ) << shift; };
+    auto rnd = [ & rd ] ( const int shift ) { return static_cast<typename Rng::result_type> ( rd ( ) ) << shift; };
     return rnd ( 32 ) | rnd ( 0 );
 }
 // Returns first prime less than 2 ^ 64.
-[[ nodiscard ]] inline constexpr std::uint64_t fixed_seed ( ) noexcept {
+[[ nodiscard ]] inline constexpr typename Rng::result_type fixed_seed ( ) noexcept {
     return 18'446'744'073'709'551'557u;
 }
 #elif UINTPTR_MAX == 0xFFFF'FFFF
 using Rng = sfc32;
-[[ nodiscard ]] inline std::uint32_t os_seed ( ) noexcept {
+[[ nodiscard ]] inline typename Rng::result_type os_seed ( ) noexcept {
     return std::random_device { } ( );
 }
 // Returns first prime less than 2 ^ 32.
-[[ nodiscard ]] inline constexpr std::uint32_t fixed_seed ( ) noexcept {
+[[ nodiscard ]] inline constexpr typename Rng::result_type fixed_seed ( ) noexcept {
     return 4'294'967'291u;
 }
 #else

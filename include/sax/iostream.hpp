@@ -27,6 +27,7 @@
 
 // Escape sequences.
 
+inline std::ostream & lf ( std::ostream & out_) { return out_ << std::flush; }
 inline std::ostream & nl ( std::ostream & out_ ) { return out_ << '\n'; }
 inline std::ostream & np ( std::ostream & out_ ) { return out_ << '\f'; }
 inline std::ostream & cr ( std::ostream & out_ ) { return out_ << '\r'; }
@@ -40,6 +41,7 @@ inline std::ostream & vt ( std::ostream & out_ ) { return out_ << '\v'; }
 
 inline std::ostream & sd ( std::ostream & out_ ) { return out_ << " - "; }
 #if defined( _UNICODE ) or defined( UNICODE )
+inline std::wostream & lf ( std::wostream & out_ ) { return out_ << std::flush; }
 inline std::wostream & nl ( std::wostream & out_ ) { return out_ << L'\n'; }
 inline std::wostream & np ( std::wostream & out_ ) { return out_ << L'\f'; }
 inline std::wostream & cr ( std::wostream & out_ ) { return out_ << L'\r'; }
