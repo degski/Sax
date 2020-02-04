@@ -274,18 +274,51 @@ inline void memcpy_avx ( void * dst, void const * src, size_t size ) noexcept {
     }
 }
 // dst and src must be 16-byte aligned
-// size must be multiple of 16*2 = 32 bytes
-inline void memcpy_sse ( void * dst, void const * src, size_t size ) noexcept {
-// https://hero.handmade.network/forums/code-discussion/t/157-memory_bandwidth_+_implementing_memcpy
-    size_t stride = 2 * sizeof ( __m128 );
-    while ( size ) {
-        __m128 a = _mm_load_ps ( ( float * ) ( reinterpret_cast<uint8_t const *> ( src ) + 0 * sizeof ( __m128 ) ) );
-        __m128 b = _mm_load_ps ( ( float * ) ( reinterpret_cast<uint8_t const *> ( src ) + 1 * sizeof ( __m128 ) ) );
-        _mm_stream_ps ( ( float * ) ( reinterpret_cast<uint8_t *> ( dst ) + 0 * sizeof ( __m128 ) ), a );
-        _mm_stream_ps ( ( float * ) ( reinterpret_cast<uint8_t *> ( dst ) + 1 * sizeof ( __m128 ) ), b );
+// copies 16 bytes.
+inline void memcpy_sse_16_impl ( std::byte * dst, std::byte const * src ) noexcept {
+    __m128 a = _mm_load_ps ( ( float * ) ( src + sizeof ( __m128 ) ) );
+    _mm_stream_ps ( ( float * ) ( dst + sizeof ( __m128 ) ), a );
+}
+// dst and src must be 16-byte aligned
+// size must be multiple of 32 bytes
+template<typename SizeType>
+inline void memcpy_sse_32_impl ( std::byte * dst, std::byte const * src, SizeType size ) noexcept {
+    constexpr SizeType stride = 2 * sizeof ( __m128 );
+    do {
+        __m128 a = _mm_load_ps ( ( float * ) ( src + 0 * sizeof ( __m128 ) ) );
+        __m128 b = _mm_load_ps ( ( float * ) ( src + 1 * sizeof ( __m128 ) ) );
+        _mm_stream_ps ( ( float * ) ( dst + 0 * sizeof ( __m128 ) ), a );
+        _mm_stream_ps ( ( float * ) ( dst + 1 * sizeof ( __m128 ) ), b );
         size -= stride;
-        src = reinterpret_cast<uint8_t const *> ( src ) + stride;
-        dst = reinterpret_cast<uint8_t *> ( dst ) + stride;
+        src += stride;
+        dst += stride;
+    } while ( size );
+}
+// dst and src must be 16-byte aligned
+// size is 16 bytes
+inline void memcpy_sse_16 ( void * dst, void const * src ) noexcept {
+    assert ( dst );
+    assert ( src );
+    memcpy_sse_16_impl ( reinterpret_cast<std::byte *> ( dst ), reinterpret_cast<std::byte const *> ( src ) );
+}
+// dst and src must be 16-byte aligned
+// size must be multiple of 16 bytes
+inline void memcpy_sse_16 ( void * dst, void const * src, size_t size ) noexcept {
+    // This wrapper allows to use '+=' on the pointers (cannot cast in this situation.
+    // changed to signed, at least the thing won't wrap, and should be mythically faster,
+    // due to UB being defined for overflow as oppsed to wrapping.
+    assert ( dst );
+    assert ( src );
+    assert ( size );
+    if ( size & 0b0000'0000'0000'0000'0000'0000'0001'0000 ) {
+        memcpy_sse_16_impl ( reinterpret_cast<std::byte *> ( dst ), reinterpret_cast<std::byte const *> ( src ) );
+        if ( size & 0b1111'1111'1111'1111'1111'1111'1110'0000 )
+            memcpy_sse_32_impl ( reinterpret_cast<std::byte *> ( dst ) + 16, reinterpret_cast<std::byte const *> ( src ) + 16,
+                                 static_cast<std::make_signed_t<size_t>> ( size ) - 16 );
+    }
+    else {
+        memcpy_sse_32_impl ( reinterpret_cast<std::byte *> ( dst ), reinterpret_cast<std::byte const *> ( src ),
+                             static_cast<std::make_signed_t<size_t>> ( size ) );
     }
 }
 
