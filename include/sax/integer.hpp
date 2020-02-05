@@ -24,7 +24,7 @@
 #pragma once
 
 #ifndef NOMINMAX
-#define NOMINMAX
+#    define NOMINMAX
 #endif
 
 #include <cassert>
@@ -35,7 +35,6 @@
 #include <limits>
 #include <string>
 #include <type_traits>
-
 
 namespace sax {
 
@@ -61,192 +60,209 @@ constexpr T gcd ( T a_, T b_ ) noexcept {
 
 // Least Common Multiple.
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr T lcm ( const T a_, const T b_ ) noexcept {
-    const T t = gcd<T> ( a_, b_ );
+constexpr T lcm ( T const a_, T const b_ ) noexcept {
+    T const t = gcd<T> ( a_, b_ );
     return t ? a_ / t * b_ : T ( 0 );
 }
-
 
 // In number theory, two integers a and b are said to be relatively prime, mutually prime, or
 // coprime (also spelled co-prime) if the only positive integer that divides both of them is 1.
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr bool are_coprime ( const T a_, const T b_ ) noexcept {
+constexpr bool are_coprime ( T const a_, T const b_ ) noexcept {
     assert ( a_ > 0 && b_ > 0 );
     return gcd<T> ( a_, b_ ) == T ( 1 );
 }
 
 // Integer LogN.
 template<int Base, typename T, typename sfinae = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr T iLog ( const T n_, const T p_ = T ( 0 ) ) noexcept {
+constexpr T iLog ( T const n_, T const p_ = T ( 0 ) ) noexcept {
     return n_ < Base ? p_ : iLog<Base, T, sfinae> ( n_ / Base, p_ + 1 );
 }
 
 // Integer Log2.
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr T ilog2 ( const T n_ ) noexcept {
-
+constexpr T ilog2 ( T const n_ ) noexcept {
     return iLog<2, T> ( n_ );
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr T next_power_2 ( const T n_ ) noexcept {
-    return n_ > 2 ? T ( 1 ) << ( ilog2<T> ( n_ - 1 ) + 1 ) : n_;
+constexpr T prev_power_2 ( T value_ ) noexcept {
+    value_ |= ( value_ >> 1 );
+    value_ |= ( value_ >> 2 );
+    if constexpr ( sizeof ( T ) > 1 ) {
+        value_ |= ( value_ >> 4 );
+    }
+    if constexpr ( sizeof ( T ) > 2 ) {
+        value_ |= ( value_ >> 8 );
+    }
+    if constexpr ( sizeof ( T ) > 4 ) {
+        value_ |= ( value_ >> 16 );
+    }
+    return value_;
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr bool is_power_2 ( const T n_ ) noexcept {
-    return n_ && !( n_ & ( n_ - 1 ) );
+constexpr T next_power_2 ( T value_ ) noexcept {
+    return ++prev_power_2 ( value_ );
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr T sum2n ( const T n_ ) noexcept {
+constexpr bool is_power_2 ( T const n_ ) noexcept {
+    return n_ and not( n_ & ( n_ - 1 ) );
+}
+
+template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
+constexpr T sum2n ( T const n_ ) noexcept {
     return ( n_ * ( n_ + 1 ) ) / T ( 2 );
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr T sumMToN ( const T m_, const T n_ ) noexcept {
+constexpr T sumMToN ( T const m_, T const n_ ) noexcept {
     return ( ( n_ * ( n_ + 1 ) ) - ( m_ * ( m_ + 1 ) ) ) / T ( 2 );
 }
 
 // Pointer Alignment.
 [[nodiscard]] inline constexpr std::size_t pointer_alignment ( void const * ptr_ ) noexcept {
-        return static_cast<std::size_t> ( reinterpret_cast<std::uintptr_t> ( ptr_ ) &
-                                          static_cast<std::uintptr_t> ( -reinterpret_cast<std::intptr_t> ( ptr_ ) ) );
+    return static_cast<std::size_t> ( reinterpret_cast<std::uintptr_t> ( ptr_ ) &
+                                      static_cast<std::uintptr_t> ( -reinterpret_cast<std::intptr_t> ( ptr_ ) ) );
 }
 
 // Gray Coding.
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr T dec2gray ( const T i_ ) noexcept {
+constexpr T dec2gray ( T const i_ ) noexcept {
     return i_ ^ ( i_ >> 1 );
 }
 
-inline constexpr std::uint8_t gray2dec ( std::uint8_t g_ ) noexcept {
-    g_ ^= g_ >> 4;
-    g_ ^= g_ >> 2;
-    g_ ^= g_ >> 1;
-    return g_;
+inline constexpr std::uint8_t gray2dec ( std::uint8_t gray_ ) noexcept {
+    gray_ ^= gray_ >> 4;
+    gray_ ^= gray_ >> 2;
+    gray_ ^= gray_ >> 1;
+    return gray_;
 }
 
-inline constexpr std::uint16_t gray2dec ( std::uint16_t g_ ) noexcept {
-    g_ ^= g_ >> 8;
-    g_ ^= g_ >> 4;
-    g_ ^= g_ >> 2;
-    g_ ^= g_ >> 1;
-    return g_;
+inline constexpr std::uint16_t gray2dec ( std::uint16_t gray_ ) noexcept {
+    gray_ ^= gray_ >> 8;
+    gray_ ^= gray_ >> 4;
+    gray_ ^= gray_ >> 2;
+    gray_ ^= gray_ >> 1;
+    return gray_;
 }
 
-inline constexpr std::uint32_t gray2dec ( std::uint32_t g_ ) noexcept {
-    g_ ^= g_ >> 16;
-    g_ ^= g_ >> 8;
-    g_ ^= g_ >> 4;
-    g_ ^= g_ >> 2;
-    g_ ^= g_ >> 1;
-    return g_;
+inline constexpr std::uint32_t gray2dec ( std::uint32_t gray_ ) noexcept {
+    gray_ ^= gray_ >> 16;
+    gray_ ^= gray_ >> 8;
+    gray_ ^= gray_ >> 4;
+    gray_ ^= gray_ >> 2;
+    gray_ ^= gray_ >> 1;
+    return gray_;
 }
 
-inline constexpr std::uint64_t gray2dec ( std::uint64_t g_ ) noexcept {
-    g_ ^= g_ >> 32;
-    g_ ^= g_ >> 16;
-    g_ ^= g_ >> 8;
-    g_ ^= g_ >> 4;
-    g_ ^= g_ >> 2;
-    g_ ^= g_ >> 1;
-    return g_;
+inline constexpr std::uint64_t gray2dec ( std::uint64_t gray_ ) noexcept {
+    gray_ ^= gray_ >> 32;
+    gray_ ^= gray_ >> 16;
+    gray_ ^= gray_ >> 8;
+    gray_ ^= gray_ >> 4;
+    gray_ ^= gray_ >> 2;
+    gray_ ^= gray_ >> 1;
+    return gray_;
 }
 
 // FNV1a c++11 constexpr compile time hash functions, 32 and 64 bit
-// str should be a null terminated string literal, value should be left out
+// str should be a null terminated string literal, value_ should be left out
 // e.g hash_32_fnv1a_const("example")
 // code license: public domain or equivalent
 // post: https://notes.underscorediscovery.com/constexpr-fnv1a/
-inline constexpr std::uint32_t hash_32_fnv1a_const ( const char* const str, const std::uint32_t value = 0x811c9dc5 ) noexcept {
-    return ( str [ 0 ] == '\0' ) ? value : hash_32_fnv1a_const ( &str [ 1 ], ( value ^ std::uint32_t ( str [ 0 ] ) ) * 0x1000193 );
+inline constexpr std::uint32_t hash_32_fnv1a_const ( char const * const str, std::uint32_t const value_ = 0x811c9dc5 ) noexcept {
+    return ( str[ 0 ] == '\0' ) ? value_ : hash_32_fnv1a_const ( &str[ 1 ], ( value_ ^ std::uint32_t ( str[ 0 ] ) ) * 0x1000193 );
 }
 
-inline constexpr std::uint64_t hash_64_fnv1a_const ( const char* const str, const std::uint64_t value = 0xcbf29ce484222325 ) noexcept {
-    return ( str [ 0 ] == '\0' ) ? value : hash_64_fnv1a_const ( &str [ 1 ], ( value ^ std::uint64_t ( str [ 0 ] ) ) * 0x100000001b3 );
+inline constexpr std::uint64_t hash_64_fnv1a_const ( char const * const str,
+                                                     std::uint64_t const value_ = 0xcbf29ce484222325 ) noexcept {
+    return ( str[ 0 ] == '\0' ) ? value_
+                                : hash_64_fnv1a_const ( &str[ 1 ], ( value_ ^ std::uint64_t ( str[ 0 ] ) ) * 0x100000001b3 );
 }
 
-inline constexpr std::uint32_t hash_32_fnv1a_const ( const std::string & str_, const std::uint32_t value_ = 0x811c9dc5 ) noexcept {
+inline constexpr std::uint32_t hash_32_fnv1a_const ( std::string const & str_, std::uint32_t const value_ = 0x811c9dc5 ) noexcept {
     return hash_32_fnv1a_const ( str_.c_str ( ), value_ );
 }
 
-inline constexpr std::uint64_t hash_64_fnv1a_const ( const std::string & str_, const std::uint64_t value_ = 0xcbf29ce484222325 ) noexcept {
+inline constexpr std::uint64_t hash_64_fnv1a_const ( std::string const & str_,
+                                                     std::uint64_t const value_ = 0xcbf29ce484222325 ) noexcept {
     return hash_64_fnv1a_const ( str_.c_str ( ), value_ );
 }
 
 // Integer Hashing.
-inline constexpr std::uint32_t hash ( std::uint32_t x ) noexcept {
-    x = ( ( x >> 16 ) ^ x ) * 0X45D9F3B;
-    x = ( ( x >> 16 ) ^ x ) * 0X45D9F3B;
-    x = ( ( x >> 16 ) ^ x );
-    return x;
+inline constexpr std::uint32_t hash ( std::uint32_t hash_ ) noexcept {
+    hash_ = ( ( hash_ >> 16 ) ^ hash_ ) * 0X45D9F3B;
+    hash_ = ( ( hash_ >> 16 ) ^ hash_ ) * 0X45D9F3B;
+    hash_ = ( ( hash_ >> 16 ) ^ hash_ );
+    return hash_;
 }
 
-inline constexpr std::uint32_t unhash ( std::uint32_t x ) noexcept {
-    x = ( ( x >> 16 ) ^ x ) * 0X119DE1F3;
-    x = ( ( x >> 16 ) ^ x ) * 0X119DE1F3;
-    x = ( ( x >> 16 ) ^ x );
-    return x;
+inline constexpr std::uint32_t unhash ( std::uint32_t hash_ ) noexcept {
+    hash_ = ( ( hash_ >> 16 ) ^ hash_ ) * 0X119DE1F3;
+    hash_ = ( ( hash_ >> 16 ) ^ hash_ ) * 0X119DE1F3;
+    hash_ = ( ( hash_ >> 16 ) ^ hash_ );
+    return hash_;
 }
 
 // 0x0CF3FD1B9997F637 0xAFC1530680179F87 - 0.0033298184
 // 0xD6E8FEB86659FD93 0xCFEE444D8B59A89B - 0.0033215807
 
-inline constexpr std::uint64_t hash ( std::uint64_t x ) noexcept {
-    x = ( ( x >> 32 ) ^ x ) * 0xD6E8FEB86659FD93;
-    x = ( ( x >> 32 ) ^ x ) * 0xD6E8FEB86659FD93;
-    x = ( ( x >> 32 ) ^ x );
-    return x;
+inline constexpr std::uint64_t hash ( std::uint64_t hash_ ) noexcept {
+    hash_ = ( ( hash_ >> 32 ) ^ hash_ ) * 0xD6E8FEB86659FD93;
+    hash_ = ( ( hash_ >> 32 ) ^ hash_ ) * 0xD6E8FEB86659FD93;
+    hash_ = ( ( hash_ >> 32 ) ^ hash_ );
+    return hash_;
 }
 
-inline constexpr std::uint64_t unhash ( std::uint64_t x ) noexcept {
-    x = ( ( x >> 32 ) ^ x ) * 0xCFEE444D8B59A89B;
-    x = ( ( x >> 32 ) ^ x ) * 0xCFEE444D8B59A89B;
-    x = ( ( x >> 32 ) ^ x );
-    return x;
-}
-
-template<typename T>
-void hash_combine ( std::uint8_t & seed_, const T & v_ ) noexcept {
-    // https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes
-    std::hash<T> hasher;
-    seed_ ^= hasher ( v_ ) + 0x9E + ( seed_ << 6 ) + ( seed_ >> 2 );
+inline constexpr std::uint64_t unhash ( std::uint64_t hash_ ) noexcept {
+    hash_ = ( ( hash_ >> 32 ) ^ hash_ ) * 0xCFEE444D8B59A89B;
+    hash_ = ( ( hash_ >> 32 ) ^ hash_ ) * 0xCFEE444D8B59A89B;
+    hash_ = ( ( hash_ >> 32 ) ^ hash_ );
+    return hash_;
 }
 
 template<typename T>
-void hash_combine ( std::uint16_t & seed_, const T & v_ ) noexcept {
+void hash_combine ( std::uint8_t & seed_, T const & value_ ) noexcept {
     // https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes
     std::hash<T> hasher;
-    seed_ ^= hasher ( v_ ) + 0x9'E37 + ( seed_ << 6 ) + ( seed_ >> 2 );
+    seed_ ^= hasher ( value_ ) + 0x9E + ( seed_ << 6 ) + ( seed_ >> 2 );
 }
 
 template<typename T>
-void hash_combine ( std::uint32_t & seed_, const T & v_ ) noexcept {
+void hash_combine ( std::uint16_t & seed_, T const & value_ ) noexcept {
     // https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes
     std::hash<T> hasher;
-    seed_ ^= hasher ( v_ ) + 0x9E37'79B9 + ( seed_ << 6 ) + ( seed_ >> 2 );
+    seed_ ^= hasher ( value_ ) + 0x9'E37 + ( seed_ << 6 ) + ( seed_ >> 2 );
 }
 
 template<typename T>
-void hash_combine ( std::uint64_t & seed_, const T & v_ ) noexcept {
+void hash_combine ( std::uint32_t & seed_, T const & value_ ) noexcept {
     // https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes
     std::hash<T> hasher;
-    seed_ ^= hasher ( v_ ) + 0x9E3779B9'7F4A7C15 + ( seed_ << 6 ) + ( seed_ >> 2 );
+    seed_ ^= hasher ( value_ ) + 0x9E37'79B9 + ( seed_ << 6 ) + ( seed_ >> 2 );
+}
+
+template<typename T>
+void hash_combine ( std::uint64_t & seed_, T const & value_ ) noexcept {
+    // https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes
+    std::hash<T> hasher;
+    seed_ ^= hasher ( value_ ) + 0x9E3779B9'7F4A7C15 + ( seed_ << 6 ) + ( seed_ >> 2 );
 }
 
 // An invertible function used to mix the bits, borrowed from murmurhash.
-inline constexpr std::uint64_t fmix64 ( std::uint64_t k ) noexcept {
-    k ^= k >> 33;
-    k *= 0xFF51AFD7ED558CCD;
-    k ^= k >> 33;
-    k *= 0xC4CEB9FE1A85EC53;
-    k ^= k >> 33;
-    return k;
+inline constexpr std::uint64_t fmix64 ( std::uint64_t key_ ) noexcept {
+    key_ ^= key_ >> 33;
+    key_ *= 0xFF51AFD7ED558CCD;
+    key_ ^= key_ >> 33;
+    key_ *= 0xC4CEB9FE1A85EC53;
+    key_ ^= key_ >> 33;
+    return key_;
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-constexpr std::uint32_t popCount ( const T x_ ) noexcept {
+constexpr std::uint32_t popCount ( T const x_ ) noexcept {
     if constexpr ( std::is_same<T, std::uint64_t>::value ) {
         return ( std::uint32_t ) __popcnt64 ( x_ );
     }
@@ -255,23 +271,23 @@ constexpr std::uint32_t popCount ( const T x_ ) noexcept {
     }
 }
 
-template < typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
-constexpr T make_odd ( const T i_ ) noexcept {
+template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+constexpr T make_odd ( T const i_ ) noexcept {
     return i_ | T ( 1 );
 }
 
-template < typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
-constexpr T make_even ( const T i_ ) noexcept {
+template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+constexpr T make_even ( T const i_ ) noexcept {
     return i_ & ~T ( 1 );
 }
 
-template < typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
-T bit_xor ( const T l_, const T r_ ) noexcept {
+template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+T bit_xor ( T const l_, T const r_ ) noexcept {
     return l_ ^ r_;
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-void print_bits ( const T n ) noexcept {
+void print_bits ( T const n ) noexcept {
     T i = T ( 1 ) << ( sizeof ( T ) * 8 - 1 );
     while ( i ) {
         putchar ( int ( ( n & i ) > 0 ) + int ( 48 ) );
