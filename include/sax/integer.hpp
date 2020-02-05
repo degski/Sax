@@ -121,12 +121,6 @@ constexpr T sumMToN ( T const m_, T const n_ ) noexcept {
     return ( ( n_ * ( n_ + 1 ) ) - ( m_ * ( m_ + 1 ) ) ) / T ( 2 );
 }
 
-// Pointer Alignment.
-[[nodiscard]] inline constexpr std::size_t pointer_alignment ( void const * ptr_ ) noexcept {
-    return static_cast<std::size_t> ( reinterpret_cast<std::uintptr_t> ( ptr_ ) &
-                                      static_cast<std::uintptr_t> ( -reinterpret_cast<std::intptr_t> ( ptr_ ) ) );
-}
-
 // Gray Coding.
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
 constexpr T dec2gray ( T const i_ ) noexcept {
@@ -287,12 +281,16 @@ T bit_xor ( T const l_, T const r_ ) noexcept {
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-void print_bits ( T const n ) noexcept {
-    T i = T ( 1 ) << ( sizeof ( T ) * 8 - 1 );
-    while ( i ) {
-        putchar ( int ( ( n & i ) > 0 ) + int ( 48 ) );
+void print_bits (T const n_) noexcept {
+    using Tu = typename std::make_unsigned<T>::type;
+    Tu n;
+    std::memcpy (&n, &n_, sizeof (Tu));
+    Tu i = Tu (1) << (sizeof (Tu) * 8 - 1);
+    while (i) {
+        putchar (int ((n & i) > 0) + int (48));
         i >>= 1;
     }
 }
 
 } // namespace sax
+

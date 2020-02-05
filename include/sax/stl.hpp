@@ -166,10 +166,11 @@ void replace_all ( std::basic_string<CharT, Traits, Allocator> & input_, std::ba
 #endif
 
 // Pointer alignment, assumes C++20 two's-complement.
-[[nodiscard]] int pointer_alignment ( void const * ptr_ ) noexcept {
-    return static_cast<int> ( reinterpret_cast<std::uintptr_t> ( ptr_ ) &
-                              static_cast<std::uintptr_t> ( -reinterpret_cast<std::intptr_t> ( ptr_ ) ) );
+[[nodiscard]] static inline std::size_t pointer_alignment (void const* ptr_) noexcept {
+    return static_cast<std::size_t> (reinterpret_cast<std::uintptr_t> (ptr_)&
+        static_cast<std::uintptr_t> (-reinterpret_cast<std::intptr_t> (ptr_)));
 }
+
 
 // https://stackoverflow.com/a/18405291/646940
 
@@ -322,21 +323,9 @@ inline void memcpy_sse_16 ( void * dst, void const * src, size_t size ) noexcept
     }
 }
 
-template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
-void print_bits ( T const n_ ) noexcept {
-    using Tu = typename std::make_unsigned<T>::type;
-    Tu n;
-    std::memcpy ( &n, &n_, sizeof ( Tu ) );
-    Tu i = Tu ( 1 ) << ( sizeof ( Tu ) * 8 - 1 );
-    while ( i ) {
-        putchar ( int ( ( n & i ) > 0 ) + int ( 48 ) );
-        i >>= 1;
-    }
-}
-
 } // namespace sax
 
-template<typename Stream, typename T, typename = std::enable_if_t<std::is_pointer<T>::value>>
+template<typename Stream, typename T, typename Sfinae = std::enable_if_t<std::is_pointer<T>::value>>
 Stream & operator<< ( Stream & out_, T const & n_ ) noexcept {
     std::int8_t n[ 8 ];
     std::memcpy ( &n, &n_, sizeof ( T ) );
@@ -351,3 +340,4 @@ Stream & operator<< ( Stream & out_, T const & n_ ) noexcept {
     out_ << std::setfill ( ' ' ) << std::setw ( 0 ) << std::dec << std::nouppercase << lf;
     return out_;
 }
+
