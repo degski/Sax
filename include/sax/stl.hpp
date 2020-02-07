@@ -37,6 +37,7 @@
 #include <utility>
 #include <variant>
 
+#include <iomanip>
 #include <iostream>
 
 // STL-like-type functions and classes.
@@ -166,11 +167,10 @@ void replace_all ( std::basic_string<CharT, Traits, Allocator> & input_, std::ba
 #endif
 
 // Pointer alignment, assumes C++20 two's-complement.
-[[nodiscard]] static inline std::size_t pointer_alignment (void const* ptr_) noexcept {
-    return static_cast<std::size_t> (reinterpret_cast<std::uintptr_t> (ptr_)&
-        static_cast<std::uintptr_t> (-reinterpret_cast<std::intptr_t> (ptr_)));
+[[nodiscard]] static inline std::size_t pointer_alignment ( void const * ptr_ ) noexcept {
+    return static_cast<std::size_t> ( reinterpret_cast<std::uintptr_t> ( ptr_ ) &
+                                      static_cast<std::uintptr_t> ( -reinterpret_cast<std::intptr_t> ( ptr_ ) ) );
 }
-
 
 // https://stackoverflow.com/a/18405291/646940
 
@@ -277,8 +277,8 @@ inline void memcpy_avx ( void * dst, void const * src, size_t size ) noexcept {
 // dst and src must be 16-byte aligned
 // copies 16 bytes.
 inline void memcpy_sse_16_impl ( std::byte * dst, std::byte const * src ) noexcept {
-    __m128 a = _mm_load_ps ( ( float * ) ( src + sizeof ( __m128 ) ) );
-    _mm_stream_ps ( ( float * ) ( dst + sizeof ( __m128 ) ), a );
+    __m128 a = _mm_load_ps ( ( float * ) src );
+    _mm_stream_ps ( ( float * ) dst, a );
 }
 // dst and src must be 16-byte aligned
 // size must be multiple of 32 bytes
@@ -340,4 +340,3 @@ Stream & operator<< ( Stream & out_, T const & n_ ) noexcept {
     out_ << std::setfill ( ' ' ) << std::setw ( 0 ) << std::dec << std::nouppercase << lf;
     return out_;
 }
-
