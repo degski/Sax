@@ -281,16 +281,158 @@ T bit_xor ( T const l_, T const r_ ) noexcept {
 }
 
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
-void print_bits (T const n_) noexcept {
+void print_bits ( T const n_ ) noexcept {
     using Tu = typename std::make_unsigned<T>::type;
     Tu n;
-    std::memcpy (&n, &n_, sizeof (Tu));
-    Tu i = Tu (1) << (sizeof (Tu) * 8 - 1);
-    while (i) {
-        putchar (int ((n & i) > 0) + int (48));
+    std::memcpy ( &n, &n_, sizeof ( Tu ) );
+    Tu i = Tu ( 1 ) << ( sizeof ( Tu ) * 8 - 1 );
+    while ( i ) {
+        putchar ( int ( ( n & i ) > 0 ) + int ( 48 ) );
         i >>= 1;
     }
 }
 
-} // namespace sax
+// Integer square root.
 
+namespace detail {
+
+#define INNER_ISQRT( s )                                                                                                           \
+    temp = ( g << ( s ) ) + ( static_cast<decltype ( g )> ( 1 ) << ( ( s ) *2 - 2 ) );                                             \
+    if ( val >= temp ) {                                                                                                           \
+        g += static_cast<decltype ( g )> ( 1 ) << ( ( s ) -1 );                                                                    \
+        val -= temp;                                                                                                               \
+    }
+
+// by Mark Crowne
+[[nodiscard]] inline constexpr uint64_t isqrt_impl ( uint64_t val ) noexcept {
+    uint64_t temp = 0, g = 0;
+    if ( val >= 0x4000'0000'0000'0000 ) {
+        g = 0x8000'0000;
+        val -= 0x4000'0000'0000'0000;
+    }
+    INNER_ISQRT ( 31 )
+    INNER_ISQRT ( 30 )
+    INNER_ISQRT ( 29 )
+    INNER_ISQRT ( 28 )
+    INNER_ISQRT ( 27 )
+    INNER_ISQRT ( 26 )
+    INNER_ISQRT ( 25 )
+    INNER_ISQRT ( 24 )
+    INNER_ISQRT ( 23 )
+    INNER_ISQRT ( 22 )
+    INNER_ISQRT ( 21 )
+    INNER_ISQRT ( 20 )
+    INNER_ISQRT ( 19 )
+    INNER_ISQRT ( 18 )
+    INNER_ISQRT ( 17 )
+    INNER_ISQRT ( 16 )
+    INNER_ISQRT ( 15 )
+    INNER_ISQRT ( 14 )
+    INNER_ISQRT ( 13 )
+    INNER_ISQRT ( 12 )
+    INNER_ISQRT ( 11 )
+    INNER_ISQRT ( 10 )
+    INNER_ISQRT ( 9 )
+    INNER_ISQRT ( 8 )
+    INNER_ISQRT ( 7 )
+    INNER_ISQRT ( 6 )
+    INNER_ISQRT ( 5 )
+    INNER_ISQRT ( 4 )
+    INNER_ISQRT ( 3 )
+    INNER_ISQRT ( 2 )
+    temp = g + g + 1;
+    if ( val >= temp )
+        g++;
+    return g;
+}
+
+// by Mark Crowne
+[[nodiscard]] inline constexpr uint32_t isqrt_impl ( uint32_t val ) noexcept {
+    uint32_t temp = 0, g = 0;
+    if ( val >= 0x4000'0000 ) {
+        g = 0x8000;
+        val -= 0x4000'0000;
+    }
+    INNER_ISQRT ( 15 )
+    INNER_ISQRT ( 14 )
+    INNER_ISQRT ( 13 )
+    INNER_ISQRT ( 12 )
+    INNER_ISQRT ( 11 )
+    INNER_ISQRT ( 10 )
+    INNER_ISQRT ( 9 )
+    INNER_ISQRT ( 8 )
+    INNER_ISQRT ( 7 )
+    INNER_ISQRT ( 6 )
+    INNER_ISQRT ( 5 )
+    INNER_ISQRT ( 4 )
+    INNER_ISQRT ( 3 )
+    INNER_ISQRT ( 2 )
+    temp = g + g + 1;
+    if ( val >= temp )
+        g++;
+    return g;
+}
+
+// by Mark Crowne
+[[nodiscard]] inline constexpr uint16_t isqrt_impl ( uint16_t val ) noexcept {
+    uint16_t temp = 0, g = 0;
+    if ( val >= 0x4000 ) {
+        g = 0x80;
+        val -= 0x4000;
+    }
+    INNER_ISQRT ( 7 )
+    INNER_ISQRT ( 6 )
+    INNER_ISQRT ( 5 )
+    INNER_ISQRT ( 4 )
+    INNER_ISQRT ( 3 )
+    INNER_ISQRT ( 2 )
+    temp = g + g + 1;
+    if ( val >= temp )
+        g++;
+    return g;
+}
+
+// by Mark Crowne
+[[nodiscard]] inline constexpr uint8_t isqrt_impl ( uint8_t val ) noexcept {
+    uint8_t temp = 0, g = 0;
+    if ( val >= 0x40 ) {
+        g = 0x8;
+        val -= 0x40;
+    }
+    INNER_ISQRT ( 3 )
+    INNER_ISQRT ( 2 )
+    temp = g + g + 1;
+    if ( val >= temp )
+        g++;
+    return g;
+}
+
+#undef INNER_ISQRT
+
+} // namespace detail
+
+template<typename SizeType>
+[[nodiscard]] inline constexpr SizeType isqrt ( SizeType const val_ ) noexcept {
+    assert ( val_ > 0 );
+    if constexpr ( sizeof ( SizeType ) >= 8 )
+        if ( val_ > std::numeric_limits<uint32_t>::max ( ) )
+            return static_cast<SizeType> ( detail::isqrt_impl ( static_cast<uint64_t> ( val_ ) ) );
+    if constexpr ( sizeof ( SizeType ) >= 4 )
+        if ( val_ > std::numeric_limits<uint16_t>::max ( ) )
+            return static_cast<SizeType> ( detail::isqrt_impl ( static_cast<uint32_t> ( val_ ) ) );
+    if constexpr ( sizeof ( SizeType ) >= 2 )
+        if ( val_ > std::numeric_limits<uint8_t>::max ( ) )
+            return static_cast<SizeType> ( detail::isqrt_impl ( static_cast<uint16_t> ( val_ ) ) );
+    return static_cast<SizeType> ( detail::isqrt_impl ( static_cast<uint8_t> ( val_ ) ) );
+}
+
+template<typename SizeType>
+[[nodiscard]] static constexpr std::size_t nth_triangular ( SizeType r_ ) noexcept {
+    return r_ * ( ( r_ + 1 ) / 2 );
+}
+template<typename SizeType>
+[[nodiscard]] static constexpr SizeType nth_triangular_root ( SizeType n_ ) noexcept {
+    return ( isqrt ( 8 * n_ ) + 1 ) / 2;
+}
+
+} // namespace sax
