@@ -40,6 +40,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include <experimental/fixed_capacity_vector>
+
 // STL-like-type functions and classes.
 
 namespace sax {
@@ -340,3 +342,32 @@ Stream & operator<< ( Stream & out_, T const & n_ ) noexcept {
     out_ << std::setfill ( ' ' ) << std::setw ( 0 ) << std::dec << std::nouppercase << lf;
     return out_;
 }
+
+#if defined( _WIN32 ) && !( defined( __clang__ ) || defined( __GNUC__ ) )
+#    pragma warning( disable : 4645 ) // suppress warning that non-returning function returns.
+[[noreturn]] inline void __builtin_unreachable ( ) noexcept { return; /* intentional */ }
+#    pragma warning( default : 4645 )
+#endif
+
+// Unreachable code.
+#define SAX_UNREACHABLE __builtin_unreachable ( )
+
+// Optimizer allowed to assume that EXPR evaluates to true.
+#define SAX_ASSUME( EXPR ) static_cast<void> ( ( EXPR ) ? void ( 0 ) : __builtin_unreachable ( ) )
+
+// Assert pretty printer.
+#define SAX_ASSERT( ... )                                                                                                          \
+    static_cast<void> ( ( __VA_ARGS__ )                                                                                            \
+                            ? void ( 0 )                                                                                           \
+                            : ::std::experimental::fcv_detail::assert_failure ( static_cast<const char *> ( __FILE__ ), __LINE__,  \
+                                                                                "assertion failed: " #__VA_ARGS__ ) )
+
+// Likely/unlikely branches.
+#define SAX_LIKELY( boolean_expr ) __builtin_expect ( !!( boolean_expr ), 1 )
+#define SAX_UNLIKELY( boolean_expr ) __builtin_expect ( !!( boolean_expr ), 0 )
+
+namespace sax {
+
+[[noreturn]] inline void unreachable ( ) noexcept { return; /* intentional */ }
+
+} // namespace sax
