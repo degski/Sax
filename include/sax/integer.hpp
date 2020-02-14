@@ -331,11 +331,11 @@ template<typename SizeType>
 
 template<typename SizeType>
 [[nodiscard]] static constexpr span_type<SizeType> nth_triangular_next_floor_ceil ( SizeType n_ ) noexcept {
-    return nth_triangular_floor_ceil ( n_ + 1 )
+    return nth_triangular_floor_ceil ( n_ + 1 );
 }
 template<typename SizeType>
 [[nodiscard]] static constexpr span_type<SizeType> nth_triangular_prev_floor_ceil ( SizeType n_ ) noexcept {
-    return nth_triangular_floor_ceil ( n_ - 1 )
+    return nth_triangular_floor_ceil ( n_ - 1 );
 }
 
 } // namespace sax
