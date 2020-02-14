@@ -308,4 +308,34 @@ template<typename SizeType>
     return ( isqrt ( 8 * n_ ) + 1 ) / 2;
 }
 
+template<typename SizeType>
+[[nodiscard]] static constexpr SizeType nth_triangular_floor ( SizeType n_ ) noexcept {
+    return nth_triangular ( nth_triangular_root ( n_ ) + 0 );
+}
+template<typename SizeType>
+[[nodiscard]] static constexpr SizeType nth_triangular_ceil ( SizeType n_ ) noexcept {
+    return nth_triangular ( nth_triangular_root ( n_ ) + 1 );
+}
+
+template<typename SizeType>
+struct span_type {
+    SizeType begin, end;
+};
+
+template<typename SizeType>
+[[nodiscard]] static constexpr span_type<SizeType> nth_triangular_floor_ceil ( SizeType n_ ) noexcept {
+    SizeType ceil = nth_triangular_root ( n_ ), floor = nth_triangular ( ceil );
+    ceil += floor;
+    return span_type<SizeType>{ std::move ( floor ), std::move ( ceil ) };
+}
+
+template<typename SizeType>
+[[nodiscard]] static constexpr span_type<SizeType> nth_triangular_next_floor_ceil ( SizeType n_ ) noexcept {
+    return nth_triangular_floor_ceil ( n_ + 1 )
+}
+template<typename SizeType>
+[[nodiscard]] static constexpr span_type<SizeType> nth_triangular_prev_floor_ceil ( SizeType n_ ) noexcept {
+    return nth_triangular_floor_ceil ( n_ - 1 )
+}
+
 } // namespace sax
