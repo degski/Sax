@@ -301,7 +301,8 @@ template<typename SizeType>
 
 template<typename SizeType>
 [[nodiscard]] static constexpr std::size_t nth_triangular ( SizeType r_ ) noexcept {
-    return r_ * ( ( r_ + 1 ) / 2 );
+    r_ += 1;
+    return r_ * ( r_ - 1 ) / 2;
 }
 template<typename SizeType>
 [[nodiscard]] static constexpr SizeType nth_triangular_root ( SizeType n_ ) noexcept {
