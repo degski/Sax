@@ -349,25 +349,8 @@ Stream & operator<< ( Stream & out_, T const & n_ ) noexcept {
 #    pragma warning( default : 4645 )
 #endif
 
-// Unreachable code.
-#define SAX_UNREACHABLE __builtin_unreachable ( )
-
-// Optimizer allowed to assume that EXPR evaluates to true.
-#define SAX_ASSUME( EXPR ) static_cast<void> ( ( EXPR ) ? void ( 0 ) : __builtin_unreachable ( ) )
-
-// Assert pretty printer.
-#define SAX_ASSERT( ... )                                                                                                          \
-    static_cast<void> ( ( __VA_ARGS__ )                                                                                            \
-                            ? void ( 0 )                                                                                           \
-                            : ::std::experimental::fcv_detail::assert_failure ( static_cast<const char *> ( __FILE__ ), __LINE__,  \
-                                                                                "assertion failed: " #__VA_ARGS__ ) )
-
-// Likely/unlikely branches.
-#define SAX_LIKELY( boolean_expr ) __builtin_expect ( !!( boolean_expr ), 1 )
-#define SAX_UNLIKELY( boolean_expr ) __builtin_expect ( !!( boolean_expr ), 0 )
-
-namespace sax {
-
-[[noreturn]] inline void unreachable ( ) noexcept { return; /* intentional */ }
-
-} // namespace sax
+#ifdef __clang__
+#    define SAX_UNPREDICTABLE( expr ) __builtin_unpredictable ( !!( expr ) )
+#else
+#    define SAX_UNPREDICTABLE( expr ) ( !!( expr ) )
+#endif
