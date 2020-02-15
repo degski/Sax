@@ -310,6 +310,11 @@ template<typename SizeType>
 }
 
 template<typename SizeType>
+[[nodiscard]] static constexpr bool is_triangular ( SizeType i_ ) noexcept {
+    return nth_triangular ( nth_triangular_root ( i_ ) ) == i_;
+}
+
+template<typename SizeType>
 [[nodiscard]] static constexpr SizeType nth_triangular_floor ( SizeType n_ ) noexcept {
     return nth_triangular ( nth_triangular_root ( n_ ) + 0 );
 }
