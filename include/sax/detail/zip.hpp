@@ -34,20 +34,17 @@
 #include <tuple>
 #include <iterator>
 
-
-/// Trick to get the number of arguments passed to a macro
+// Trick to get the number of arguments passed to a macro
 #define NARGS_(_1, _2, _3, _4, _5, _6, _7, _8, N,...) N
 #define NARGS(...) NARGS_(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1)
 
 
-/// Makes easier to expand the expressions
+// Makes easier to expand the expressions
 #define EXPAND(...) __VA_ARGS__
 
-/// Concatenate two tokens
-#define CONCAT(x, y) CONCAT_(x, y)
+// Concatenate two tokens
 #define CONCAT_(x, y) EXPAND(x ## y)
-
-
+#define CONCAT(x, y) CONCAT_(x, y)
 
 /** When using stl functions which takes iterator parameters of the
   * form (first, last), these macros make it much easier. Simply use
