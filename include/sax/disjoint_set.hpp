@@ -28,53 +28,83 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include <algorithm>
 #include <array>
+#include <limits>
 
 namespace sax {
 
-template<typename SizeType, SizeType N>
-struct alignas ( 64 ) disjoint_set {
+using atom_type                     = char const *;
+static constexpr atom_type nullatom = "none";
 
-    using size_type = SizeType;
+namespace detail {
 
-    constexpr size_type find ( size_type x_ ) noexcept {
-        if ( parent[ x_ ] == x_ )
-            return x_;
-        return parent[ x_ ] = find ( parent[ x_ ] );
+template<std::intptr_t Size>
+using required_size_type =
+    std::conditional_t<std::numeric_limits<char>::max ( ) <= Size, char,
+                       std::conditional_t<std::numeric_limits<short>::max ( ) <= Size, short,
+                                          std::conditional_t<std::numeric_limits<int>::max ( ) <= Size, int, long long>>>;
+}
+
+// 'disjoint_set' using the path-compression technique and ranking
+template<std::intptr_t PopulationSize, std::intptr_t GroupsSize>
+struct disjoint_set {
+
+    using size_type = detail::required_size_type<PopulationSize>;
+
+    constexpr size_type find ( size_type x_ ) noexcept { return find_impl ( x_ ); }
+    constexpr atom_type find_name ( size_type x_ ) noexcept { return name[ find ( x_ ) ]; }
+
+    // Returns the current group-representative-index, iff an atom is passed, that atom will be set as the groupss name.
+    // The groups' name will be set to the value that was passed the last call with a name for the current group.
+    [[maybe_unused]] constexpr size_type unite ( size_type x_, size_type y_, atom_type group_name_ = nullatom ) noexcept {
+        size_type group_rep = unite_impl ( x_, y_ );
+        if ( nullatom != group_name_ )
+            name[ group_rep ] = group_name_;
+        return group_rep;
     }
-
-    constexpr void unite ( size_type x_, size_type y_ ) noexcept {
-        size_type irep = find ( x_ ), jrep = find ( y_ );
-        if ( irep == jrep )
-            return;
-        switch ( size_type irank = rank[ irep ], jrank = rank[ jrep ]; ( irank > jrank ) - ( irank < jrank ) ) {
-            case -1: parent[ irep ] = jrep; return;
-            case +0:
-                parent[ irep ] = jrep;
-                rank[ jrep ]++;
-                return;
-            case +1: parent[ jrep ] = irep; return;
-        }
+    [[maybe_unused]] constexpr atom_type unite_name ( size_type x_, size_type y_, atom_type group_name_ = nullatom ) noexcept {
+        return name[ unite ( x_, y_, group_name_ ) ];
     }
 
     private:
-    using container = std::array<size_type, N>;
-    using iterator  = typename container::iterator;
-
-    static constexpr size_type n = N;
-
-    constexpr void iota ( iterator first_, iterator last_, size_type value_ = 0 ) noexcept {
-        while ( first_ != last_ )
-            *first_++ = value_++;
+    constexpr size_type find_impl ( size_type x_ ) noexcept {
+        if ( parent[ x_ ] == x_ )
+            return x_;
+        return parent[ x_ ] = find_impl ( parent[ x_ ] );
     }
 
-    constexpr container make_parent ( ) noexcept {
-        container parent;
-        iota ( parent.begin ( ), parent.end ( ) );
-        return parent;
+    // Returns the current group representative.
+    [[maybe_unused]] constexpr size_type unite_impl ( size_type x_, size_type y_ ) noexcept {
+        if ( size_type irep = find_impl ( x_ ), jrep = find_impl ( y_ ); irep != jrep )
+            switch ( size_type irank = rank[ irep ], jrank = rank[ jrep ]; ( irank > jrank ) - ( irank < jrank ) ) {
+                case -1: return parent[ irep ] = jrep;
+                case +0: rank[ jrep ]++; return parent[ irep ] = jrep;
+                case +1: [[fallthrough]];
+                default: return parent[ jrep ] = irep;
+            }
+        else
+            return irep;
     }
 
-    container rank = { }, parent = make_parent ( );
+    using container = std::array<size_type, PopulationSize>;
+    using names     = std::array<atom_type, PopulationSize>;
+
+    alignas ( 64 ) container rank   = { };
+    alignas ( 64 ) container parent = [] {
+        container p;
+        auto it = p.begin ( ), end = p.end ( );
+        size_type value = 0;
+        while ( it != end )
+            *it++ = value++;
+        return p;
+    }( );
+
+    alignas ( 64 ) names name = [] {
+        names n;
+        std::fill ( n.begin ( ), n.end ( ), nullatom );
+        return n;
+    }( );
 };
 
 } // namespace sax
