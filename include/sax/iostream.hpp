@@ -60,7 +60,31 @@ inline std::wostream & sd ( std::wostream & out_ ) { return out_ << L" - "; }
 
 // Ascii colour output codes for the (Windows-) console.
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#        define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#include <fcntl.h>
+#include <io.h>
+#endif
+
 namespace sax {
+
+DWORD enable_virtual_terminal_sequences ( ) noexcept {
+#ifdef _WIN32
+    HANDLE hOut = GetStdHandle ( STD_OUTPUT_HANDLE );
+    if ( hOut == INVALID_HANDLE_VALUE )
+        return GetLastError ( );
+    DWORD dwMode = 0;
+    if ( not GetConsoleMode ( hOut, &dwMode ) )
+        return GetLastError ( );
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if ( not SetConsoleMode ( hOut, dwMode ) )
+        return GetLastError ( );
+#endif
+    return 0;
+}
 
 using string_literal_t = char const *;
 #if defined( _UNICODE ) or defined( UNICODE )
