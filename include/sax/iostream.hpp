@@ -71,7 +71,7 @@ inline std::wostream & sd ( std::wostream & out_ ) { return out_ << L" - "; }
 
 namespace sax {
 
-DWORD enable_virtual_terminal_sequences ( ) noexcept {
+inline DWORD enable_virtual_terminal_sequences ( ) noexcept {
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle ( STD_OUTPUT_HANDLE );
     if ( hOut == INVALID_HANDLE_VALUE )
