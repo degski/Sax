@@ -62,10 +62,6 @@ class alignas ( 64 ) sfc {
         // Nothing (else) to do
     }
 
-    sfc ( itype seed0, itype seed1, itype seed2, itype seed3 ) ) : a_ ( seed0 ), b_ ( seed1 ), c_ ( seed2 ), d_ ( seed3 | 1ULL ) {
-        // Nothing (else) to do
-    }
-
     sfc ( itype && seed1, itype && seed2, itype && seed3, itype && seed4 ) :
         a_ ( std::move ( seed4 ) ), b_ ( std::move ( seed3 ) ), c_ ( std::move ( seed2 ) ),
         d_ ( ( std::move ( seed1 ) | itype ( 1 ) ) ) {
